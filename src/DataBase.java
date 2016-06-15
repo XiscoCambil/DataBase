@@ -165,13 +165,13 @@ public class DataBase {
         return rs;
     }
 
-//    public ResultSet ObtenerValoresModificar(Proveidor p) throws SQLException {
-//        String sql = "SELECT p.nom,p.telefon,p.CIF,p.activo,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio FROM(PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat WHERE CIF=? ";
-//        PreparedStatement ps = c.prepareStatement(sql);
-//        ps.setString(1,p.getCif());
-//        ResultSet rs = ps.executeQuery();
-//        return rs;
-//   }
+    public ResultSet ObtenerValoresModificar(Proveidor p) throws SQLException {
+        String sql = "SELECT p.nom,p.telefon,p.CIF,p.activo,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio FROM(PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat WHERE CIF=? ";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1,p.getCif());
+        ResultSet rs = ps.executeQuery();
+        return rs;
+   }
 }
 
 class Proveidor {

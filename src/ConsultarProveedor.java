@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -57,20 +59,34 @@ public class ConsultarProveedor extends JDialog {
         consultaButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 dtm.setRowCount(0);
+                ResetearCampos();
                 ObtenerValoresConsulta();
                 Proveidor p = new Proveidor(nombre,telefon,cif,activo);
                 p.setLocalidad(localidad);
                 try {
                   ResultSet rs =  Programa.db.ConsultaProveidor(p);
-                   if (!rs.next()){
-                        JOptionPane.showMessageDialog(null,"No hay ningun registro que coincida");
+                   if (rs.next()){
+                       dtm.addRow(new String[]{rs.getString("nom"), rs.getString("telefon"), rs.getString("CIF"), rs.getString("descripcio"), rs.getString("activo")});
+                       while (rs.next()){
+                           dtm.addRow(new String[]{rs.getString("nom"),rs.getString("telefon"),rs.getString("CIF"),rs.getString("descripcio"),rs.getString("activo")});
+                       }
+                   }else{
+                       JOptionPane.showMessageDialog(null, "No hay ningun registro que coincida");
                    }
-                    while (rs.next()){
-                        dtm.addRow(new String[]{rs.getString("nom"),rs.getString("telefon"),rs.getString("CIF"),rs.getString("descripcio"),rs.getString("activo")});
-                    }
-//                    SeleccionProveedor();
                 } catch (SQLException e1) {
                     e1.printStackTrace();
+                }
+            }
+        });
+        table1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent event) {
+                System.out.println(table1.getSelectedRow());
+                try {
+                    if(table1.getSelectedRow() >= 0) {
+                        SeleccionProveedor();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -104,21 +120,58 @@ public class ConsultarProveedor extends JDialog {
         comboBox2.setVisible(true);
     }
 
-//    private void SeleccionProveedor() throws SQLException {
-//        int row  = table1.getSelectedRow();
-//        Proveidor p = new Proveidor((String)table1.getValueAt(row,0),(String)table1.getValueAt(row,1),(String)table1.getValueAt(row,2),(String)table1.getValueAt(row,4));
-//        ResultSet rs = Programa.db.ObtenerValoresModificar(p);
-//        rs.next();
-//        nombreMFild.setText(rs.getString("p.nom"));
-//        telefonMField.setText(rs.getString("p.telefon"));
-//            cifMFild.setText(rs.getString("p.CIF"));
-//            activoMFild.setText(rs.getString("p.activo"));
-//        nportalMField.setText(rs.getString("a.numero"));
-//        localidadMField.setText(rs.getString("l.descripcio"));
-//        llypMFild.setText(rs.getString("a.porta"));
-//        pyllMField.setText(rs.getString("a.pis"));
-//        calleMFild.setText(rs.getString("a.descripcio"));
-//        cpostalMField.setText(rs.getString("a.codi_postal"));
-//    }
+    private void SeleccionProveedor() throws SQLException {
+        int row  = table1.getSelectedRow();
+        Proveidor p = new Proveidor((String)table1.getValueAt(row,0),(String)table1.getValueAt(row,1),(String)table1.getValueAt(row,2),(String)table1.getValueAt(row,4));
+        ResultSet rs = Programa.db.ObtenerValoresModificar(p);
+        rs.next();
+         RellenarCampos(rs);
+    }
+
+    private void RellenarCampos(ResultSet rs) throws SQLException {
+        nombreMFild.setText(rs.getString("p.nom"));
+        nombreMFild.setEnabled(true);
+        telefonMField.setText(rs.getString("p.telefon"));
+        telefonMField.setEnabled(true);
+        cifMFild.setText(rs.getString("p.CIF"));
+        cifMFild.setEnabled(true);
+        activoMFild.setText(rs.getString("p.activo"));
+        activoMFild.setEnabled(true);
+        nportalMField.setText(rs.getString("a.numero"));
+        nportalMField.setEnabled(true);
+        localidadMField.setText(rs.getString("l.descripcio"));
+        localidadMField.setEnabled(true);
+        llypMFild.setText(rs.getString("a.porta"));
+        llypMFild.setEnabled(true);
+        pyllMField.setText(rs.getString("a.pis"));
+        pyllMField.setEnabled(true);
+        calleMFild.setText(rs.getString("a.descripcio"));
+        calleMFild.setEnabled(true);
+        cpostalMField.setText(rs.getString("a.codi_postal"));
+        cpostalMField.setEnabled(true);
+    }
+
+    private void ResetearCampos(){
+        nombreMFild.setText("");
+        nombreMFild.setEnabled(false);
+        telefonMField.setText("");
+        telefonMField.setEnabled(false);
+        cifMFild.setText("");
+        cifMFild.setEnabled(false);
+        activoMFild.setText("");;
+        activoMFild.setEnabled(false);
+        nportalMField.setText("");
+        nportalMField.setEnabled(false);
+        localidadMField.setText("");
+        localidadMField.setEnabled(false);
+        llypMFild.setText("");
+        llypMFild.setEnabled(false);
+        pyllMField.setText("");
+        pyllMField.setEnabled(false);
+        calleMFild.setText("");
+        calleMFild.setEnabled(false);
+        cpostalMField.setText("");
+        cpostalMField.setEnabled(false);
+    }
 
 }
