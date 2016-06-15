@@ -31,11 +31,27 @@ public class ConsultarProveedor extends JDialog {
     private JTextField cpostalMField;
     private DefaultTableModel dtm;
 
+    String nombreN = "";
+    String cifN = "";
+    String localidadN = "";
+    String activoN = "";
+    String telefonN = "";
+    String calleN = "";
+    String nportalN = "";
+    String llportalN = "";
+    String plletraN = "";
+    String codigo_postalN = "";
+
     String nombre = "";
     String cif = "";
     String localidad = "";
     String activo = "";
     String telefon = "";
+    String calle = "";
+    String nportal = "";
+    String llportal = "";
+    String plletra = "";
+    String codigo_postal = "";
 
     public ConsultarProveedor() throws SQLException {
         setContentPane(contentPane);
@@ -83,7 +99,26 @@ public class ConsultarProveedor extends JDialog {
                 try {
                     if (table1.getSelectedRow() >= 0) {
                         SeleccionProveedor();
+                        ObtenerValoresAntiguosCamposModificar();
                     }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        modificarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                ObtenerValoresNuevosCamposModificar();
+                Adreça a = new Adreça(calle,localidad,codigo_postal,plletra,llportal,nportal);
+                try {
+                    a.setId_localidad(Programa.db.ObtenerIdLocalidad(localidad));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                Proveidor p = new Proveidor(nombre,telefon,cif,activo,a);
+                try {
+                    Programa.db.ModificarProveedor(p);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -121,7 +156,7 @@ public class ConsultarProveedor extends JDialog {
     private void SeleccionProveedor() throws SQLException {
         int row = table1.getSelectedRow();
         Proveidor p = new Proveidor((String) table1.getValueAt(row, 0), (String) table1.getValueAt(row, 1), (String) table1.getValueAt(row, 2), (String) table1.getValueAt(row, 4));
-        ResultSet rs = Programa.db.ObtenerValoresModificar(p);
+        ResultSet rs = Programa.db.ObtenerValoresRellenarCampos(p);
         rs.next();
         RellenarCampos(rs);
     }
@@ -157,7 +192,6 @@ public class ConsultarProveedor extends JDialog {
         cifMFild.setText("");
         cifMFild.setEnabled(false);
         activoMFild.setText("");
-        ;
         activoMFild.setEnabled(false);
         nportalMField.setText("");
         nportalMField.setEnabled(false);
@@ -171,6 +205,32 @@ public class ConsultarProveedor extends JDialog {
         calleMFild.setEnabled(false);
         cpostalMField.setText("");
         cpostalMField.setEnabled(false);
+    }
+
+    private void ObtenerValoresNuevosCamposModificar(){
+        nombreN = nombreMFild.getText();
+        cifN = cifMFild.getText();
+        localidadN = localidadMField.getText();
+        activoN = activoMFild.getText();
+        telefonN = telefonMField.getText();
+        calleN = calleMFild.getText();
+        nportalN = nportalMField.getText();
+        llportalN = llypMFild.getText();
+        plletraN = pyllMField.getText();
+        codigo_postalN = cpostalMField.getText();
+    }
+
+    private void ObtenerValoresAntiguosCamposModificar(){
+        nombre = nombreMFild.getText();
+        cif = cifMFild.getText();
+        localidad = localidadMField.getText();
+        activo = activoMFild.getText();
+        telefon = telefonMField.getText();
+        calle = calleMFild.getText();
+        nportal = nportalMField.getText();
+        llportal = llypMFild.getText();
+        plletra = pyllMField.getText();
+        codigo_postal = cpostalMField.getText();
     }
 
 }

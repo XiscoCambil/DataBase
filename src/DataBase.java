@@ -60,7 +60,7 @@ public class DataBase {
         return rs3.getInt("adreca");
     }
 
-    private int ObtenerIdLocalidad(String localidad) throws SQLException {
+    public int ObtenerIdLocalidad(String localidad) throws SQLException {
         //Obtenemos el idetificador de la localidad.
         String consultaidLocalida = "SELECT id_localitat FROM LOCALITAT WHERE descripcio=?";
         PreparedStatement ps2 = c.prepareStatement(consultaidLocalida);
@@ -163,18 +163,54 @@ public class DataBase {
         for (int i = 1, x = 1; i < valores.size(); i += 2, x++) {
             ps.setString(x, valores.get(i));
         }
-        System.out.println(sql);
         ResultSet rs = ps.executeQuery();
         return rs;
     }
 
-    public ResultSet ObtenerValoresModificar(Proveidor p) throws SQLException {
+    public ResultSet ObtenerValoresRellenarCampos(Proveidor p) throws SQLException {
         String sql = "SELECT p.nom,p.telefon,p.CIF,p.activo,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio FROM(PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat WHERE CIF=? ";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setString(1, p.getCif());
         ResultSet rs = ps.executeQuery();
         return rs;
     }
+
+    public void ModificarProveedor(Proveidor p) throws SQLException {
+
+
+    }
+
+    private void UpdateAdreca(Proveidor p) throws SQLException {
+        p.adreça.setId_localidad(ObtenerIdLocalidad(p.adreça.getLocalidad()));
+        String sql = "UPDATE ADRECA SET id_localitat=?,descripcio=?,numero=?,porta=?,pis=?,codi_postal=? WHERE ";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1,p.adreça.getId_localidad());
+        ps.setString(2, p.adreça.getCarrer());
+        ps.setString(3, p.adreça.getnPortal());
+        ps.setString(4, p.adreça.getLletraPortal());
+        ps.setString(5, p.adreça.getPisoYLetra());
+        ps.setString(6, p.adreça.getCodigoPostal());
+        ps.execute();
+    }
+
+    private void UpdateProveidor(Proveidor p) throws SQLException {
+        String sql = "UPDATE PROVEIDOR SET nom=?,telefon?,CIF=?,activo=?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1,p.getNombre());
+        ps.setString(2,p.getTelefon());
+        ps.setString(3,p.getCif());
+        ps.setString(4,p.getActivo());
+        ps.execute();
+    }
+
+    private ResultSet ValoresAntiguosAdreca(Proveidor p) throws SQLException {
+        String sql = "SELECT a.id_localitat,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal FROM ADRECA as a INNER JOIN PROVEIDOR as p ON a.id_adreca = p.id_adreça WHERE p.CIF=?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1,p.getCif());
+        ResultSet rs = ps.executeQuery();
+        return rs;
+    }
+
 }
 
 class Proveidor {
