@@ -17,9 +17,6 @@ public class InsertDialog extends JDialog {
     private JTextField codigoPostalFild;
     private JTextField localidadFild;
 
-
-
-
     String nombre = "";
     String telefon = "";
     String cif = "";
@@ -29,8 +26,6 @@ public class InsertDialog extends JDialog {
     String PisoYLetra = "";
     String codigoPostal = "";
     String localidad = "";
-
-
 
     public InsertDialog(JFrame parent) {
         super(parent);
@@ -48,10 +43,10 @@ public class InsertDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 ObtenerValores();
-                Adreça adreça = new Adreça(carrer,localidad,codigoPostal,PisoYLetra,lletraPortal,nPortal);
-                Proveidor proveidor = new Proveidor(nombre,telefon,cif,"s", adreça);
+                Adreça adreça = new Adreça(carrer, localidad, codigoPostal, PisoYLetra, lletraPortal, nPortal);
+                Proveidor proveidor = new Proveidor(nombre, telefon, cif, "s", adreça);
                 try {
-                    Programa.db.InsertarProveidor(adreça,proveidor);
+                    Programa.db.InsertarProveidor(adreça, proveidor);
                     JOptionPane.showMessageDialog(null, "Proveedor insertado correctamente");
                     dispose();
                 } catch (SQLException e) {
@@ -61,7 +56,7 @@ public class InsertDialog extends JDialog {
         });
     }
 
-    private void ObtenerValores(){
+    private void ObtenerValores() {
         nombre = nombreFild.getText();
         telefon = telefonFild.getText();
         cif = cifFild.getText();
@@ -72,7 +67,4 @@ public class InsertDialog extends JDialog {
         codigoPostal = codigoPostalFild.getText();
         localidad = localidadFild.getText().toUpperCase();
     }
-
-
-
 }

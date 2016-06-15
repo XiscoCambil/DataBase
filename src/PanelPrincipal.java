@@ -13,7 +13,7 @@ public class PanelPrincipal {
     private JPanel panel;
     private JFrame frame = new JFrame("Proveedor");
 
-    public PanelPrincipal(){
+    public PanelPrincipal() {
         frame.setContentPane(panel);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -30,7 +30,7 @@ public class PanelPrincipal {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    JOptionPane.showMessageDialog(null,"Numero de proveedores: "+Programa.db.maxCodiProveidor());
+                    JOptionPane.showMessageDialog(null, "Numero de proveedores: " + Programa.db.maxCodiProveidor());
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 } catch (SQLException e) {
@@ -47,7 +47,8 @@ public class PanelPrincipal {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                cp.pack();;
+                cp.pack();
+                ;
                 cp.setVisible(true);
             }
         });

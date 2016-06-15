@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ public class DataBase {
     private String password;
     private String server;
     private Connection c;
+    private String dbClassName = "com.mysql.jdbc.Driver";
 
     public DataBase(String server, String username, String password) throws Exception {
         this.username = username;
@@ -19,8 +21,6 @@ public class DataBase {
         ConexionBBDD();
         PanelPrincipal pp = new PanelPrincipal();
     }
-
-    private String dbClassName = "com.mysql.jdbc.Driver";
 
     private void ConexionBBDD() throws ClassNotFoundException, SQLException {
         try {
@@ -49,7 +49,6 @@ public class DataBase {
         InsertAdr(adreça);
         InsertPro(proveidor);
     }
-
 
 
     public int ObtenerIdAdreca() throws SQLException {
@@ -87,7 +86,7 @@ public class DataBase {
             inAdreca.setString(8, adreça.getCodigoPostal());
             inAdreca.execute();
         } catch (Exception e) {
-            System.out.println("Error en la inserccion en la direccion");
+            JOptionPane.showMessageDialog(null, "Error en la inserccion en la direccion");
         }
     }
 
@@ -103,7 +102,7 @@ public class DataBase {
             inProveidor.setString(5, "s");
             inProveidor.execute();
         } catch (Exception e) {
-            System.out.println("Error en la inserccion de proveedor");
+            JOptionPane.showMessageDialog(null, "Error en la inserccion de proveedor");
         }
     }
 
@@ -124,7 +123,7 @@ public class DataBase {
         PreparedStatement preparedStatement = c.prepareStatement(sql);
         // execute select SQL stetement
         ResultSet rs = preparedStatement.executeQuery();
-        while(rs.next()){
+        while (rs.next()) {
             localidades.add(rs.getString("descripcio"));
         }
         return localidades;
@@ -132,32 +131,36 @@ public class DataBase {
 
     public ResultSet ConsultaProveidor(Proveidor p) throws SQLException {
         List<String> valores = new ArrayList<>();
-        if(!p.getNombre().isEmpty()){
+        if (!p.getNombre().isEmpty()) {
             valores.add("p.nom");
             valores.add(p.getNombre());
-        }if(!p.getTelefon().isEmpty()){
+        }
+        if (!p.getTelefon().isEmpty()) {
             valores.add("p.telefon");
             valores.add(p.getTelefon());
-        }if(!p.getCif().isEmpty()){
+        }
+        if (!p.getCif().isEmpty()) {
             valores.add("p.CIF");
             valores.add(p.getCif());
-        }if(!p.getActivo().isEmpty()){
+        }
+        if (!p.getActivo().isEmpty()) {
             valores.add("p.activo");
             valores.add(p.getActivo());
-        }if(p.getLocalidad() != "..."){
+        }
+        if (p.getLocalidad() != "...") {
             valores.add("l.descripcio");
             valores.add(p.getLocalidad());
         }
         String sql = "SELECT p.nom,p.telefon,p.cif,l.descripcio,p.activo FROM( PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat WHERE ";
-        for (int i = 0; i < valores.size(); i+=2) {
-            if(i == valores.size()-2){
-                sql += valores.get(i)+"=?";
-            }else{
-                sql += valores.get(i)+"=? && ";
+        for (int i = 0; i < valores.size(); i += 2) {
+            if (i == valores.size() - 2) {
+                sql += valores.get(i) + "=?";
+            } else {
+                sql += valores.get(i) + "=? && ";
             }
-       }
+        }
         PreparedStatement ps = c.prepareStatement(sql);
-        for (int i = 1, x = 1; i < valores.size() ; i+=2,x++) {
+        for (int i = 1, x = 1; i < valores.size(); i += 2, x++) {
             ps.setString(x, valores.get(i));
         }
         System.out.println(sql);
@@ -168,10 +171,10 @@ public class DataBase {
     public ResultSet ObtenerValoresModificar(Proveidor p) throws SQLException {
         String sql = "SELECT p.nom,p.telefon,p.CIF,p.activo,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio FROM(PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat WHERE CIF=? ";
         PreparedStatement ps = c.prepareStatement(sql);
-        ps.setString(1,p.getCif());
+        ps.setString(1, p.getCif());
         ResultSet rs = ps.executeQuery();
         return rs;
-   }
+    }
 }
 
 class Proveidor {
@@ -185,6 +188,21 @@ class Proveidor {
     public Adreça adreça;
 
 
+    public Proveidor(String nombre, String telefon, String cif, String activo, Adreça adreça) {
+        this.nombre = nombre;
+        this.telefon = telefon;
+        this.cif = cif;
+        this.activo = activo;
+        this.adreça = adreça;
+    }
+
+    public Proveidor(String nombre, String telefon, String cif, String activo) {
+        this.nombre = nombre;
+        this.telefon = telefon;
+        this.cif = cif;
+        this.activo = activo;
+    }
+
     public String getLocalidad() {
         return localidad;
     }
@@ -192,7 +210,6 @@ class Proveidor {
     public void setLocalidad(String localidad) {
         this.localidad = localidad;
     }
-
 
     public int getId_adreça() {
         return id_adreça;
@@ -202,73 +219,36 @@ class Proveidor {
         this.id_adreça = id_adreça;
     }
 
-    public Proveidor(String nombre,  String telefon, String cif, String activo, Adreça adreça) {
-        this.nombre = nombre;
-        this.telefon = telefon;
-        this.cif = cif;
-        this.activo = activo;
-        this.adreça = adreça;
-    }
-
-    public Proveidor(String nombre,  String telefon, String cif, String activo) {
-        this.nombre = nombre;
-        this.telefon = telefon;
-        this.cif = cif;
-        this.activo = activo;
-    }
-
     public String getCif() {
         return cif;
     }
 
-    public void setCif(String cif) {
-        this.cif = cif;
-    }
-
-    public Adreça getAdreça() {
-        return adreça;
-    }
-
-    public void setAdreça(Adreça adreça) {
-        this.adreça = adreça;
-    }
 
     public String getActivo() {
         return activo;
-    }
-
-    public void setActivo(String activo) {
-        this.activo = activo;
     }
 
     public String getTelefon() {
         return telefon;
     }
 
-    public void setTelefon(String telefon) {
-        this.telefon = telefon;
-    }
-
     public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
 }
 
-class Programa{
+class Programa {
     static DataBase db;
+
     public static void main(String[] args) throws Exception {
-        db = new DataBase("172.16.10.156","root","terremoto11");
+        db = new DataBase("172.16.10.156", "root", "terremoto11");
 
     }
 
 }
 
-class Adreça{
+class Adreça {
 
     public int id_Adreça;
     public String carrer = "";
@@ -278,81 +258,7 @@ class Adreça{
     public String codigoPostal = "";
     public String localidad = "";
     public int tipo_Via = 1;
-
-    public String getCarrer() {
-        return carrer;
-    }
-
-    public void setCarrer(String carrer) {
-        this.carrer = carrer;
-    }
-
-    public int getId_localidad() {
-        return id_localidad;
-    }
-
-    public void setId_localidad(int id_localidad) {
-        this.id_localidad = id_localidad;
-    }
-
     public int id_localidad;
-
-    public int getId_Adreça() {
-        return id_Adreça;
-    }
-
-    public void setId_Adreça(int id_Adreça) {
-        this.id_Adreça = id_Adreça;
-    }
-
-
-    public String getLletraPortal() {
-        return lletraPortal;
-    }
-
-    public void setLletraPortal(String lletraPortal) {
-        this.lletraPortal = lletraPortal;
-    }
-
-    public String getPisoYLetra() {
-        return PisoYLetra;
-    }
-
-    public void setPisoYLetra(String pisoYLetra) {
-        PisoYLetra = pisoYLetra;
-    }
-
-    public String getCodigoPostal() {
-        return codigoPostal;
-    }
-
-    public void setCodigoPostal(String codigoPostal) {
-        this.codigoPostal = codigoPostal;
-    }
-
-    public String getLocalidad() {
-        return localidad;
-    }
-
-    public void setLocalidad(String localidad) {
-        this.localidad = localidad;
-    }
-
-    public int getTipo_Via() {
-        return tipo_Via;
-    }
-
-    public void setTipo_Via(int tipo_Via) {
-        this.tipo_Via = tipo_Via;
-    }
-
-    public String getnPortal() {
-        return nPortal;
-    }
-
-    public void setnPortal(String nPortal) {
-        this.nPortal = nPortal;
-    }
 
 
     public Adreça(String carrer, String localidad, String codigoPostal, String pisoYLetra, String lletraPortal, String nPortal) {
@@ -365,5 +271,47 @@ class Adreça{
 
     }
 
+    public String getCarrer() {
+        return carrer;
+    }
 
+    public int getId_localidad() {
+        return id_localidad;
+    }
+
+    public void setId_localidad(int id_localidad) {
+        this.id_localidad = id_localidad;
+    }
+
+    public int getId_Adreça() {
+        return id_Adreça;
+    }
+
+    public void setId_Adreça(int id_Adreça) {
+        this.id_Adreça = id_Adreça;
+    }
+
+    public String getLletraPortal() {
+        return lletraPortal;
+    }
+
+    public String getPisoYLetra() {
+        return PisoYLetra;
+    }
+
+    public String getCodigoPostal() {
+        return codigoPostal;
+    }
+
+    public String getLocalidad() {
+        return localidad;
+    }
+
+    public int getTipo_Via() {
+        return tipo_Via;
+    }
+
+    public String getnPortal() {
+        return nPortal;
+    }
 }
