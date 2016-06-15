@@ -10,12 +10,11 @@ public class PanelPrincipal {
     private JButton insertarProveidorButton;
     private JButton numeroDeProveedoresButton;
     private JButton consultarProveedorButton;
+    private JPanel panel;
     private JFrame frame = new JFrame("Proveedor");
 
     public PanelPrincipal(){
-        frame.add(insertarProveidorButton);
-        frame.add(numeroDeProveedoresButton);
-        frame.add(consultarProveedorButton);
+        frame.setContentPane(panel);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
@@ -42,7 +41,12 @@ public class PanelPrincipal {
         consultarProveedorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                ConsultarProveedor cp = new ConsultarProveedor();
+                ConsultarProveedor cp = null;
+                try {
+                    cp = new ConsultarProveedor();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 cp.pack();;
                 cp.setVisible(true);
             }

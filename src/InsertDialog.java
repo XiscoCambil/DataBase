@@ -61,7 +61,7 @@ public class InsertDialog extends JDialog {
         });
     }
 
-    public void ObtenerValores(){
+    private void ObtenerValores(){
         nombre = nombreFild.getText();
         telefon = telefonFild.getText();
         cif = cifFild.getText();
