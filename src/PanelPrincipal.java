@@ -81,31 +81,15 @@ public class PanelPrincipal {
                         Element proveidor =  doc.createElement("proveidor");
                         arrel.appendChild(proveidor);
 
-                        Element nom = doc.createElement("nom");
-                        proveidor.appendChild(nom);
-                        nom.setTextContent(p.getNombre());
-
-                        Element id_adreca = doc.createElement("id_adreca");
-                        proveidor.appendChild(id_adreca);
-                        id_adreca.setTextContent(String.valueOf(p.adreça.getId_Adreça()));
-
-                        Element telefon = doc.createElement("telefon");
-                        proveidor.appendChild(telefon);
-                        telefon.setTextContent(p.getNombre());
-
-                        Element cif = doc.createElement("cif");
-                        proveidor.appendChild(cif);
-                        cif.setTextContent(p.getCif());
-
-                        Element activo = doc.createElement("activo");
-                        proveidor.appendChild(activo);
-                        activo.setTextContent(p.getActivo());
+                        XMLproveidor(doc,proveidor,p);
 
                         Element adreca = doc.createElement("adreça");
                         proveidor.appendChild(adreca);
 
+                        XMLadreca(doc,adreca,p);
                     }
                     dumpXml.write(new FileOutputStream("src/xml/dump.xml"));
+                    JOptionPane.showMessageDialog(null,"Dump realizado con exito, ubicacion: src/xml/dump.xml");
                 } catch (ParserConfigurationException e) {
                     e.printStackTrace();
                 } catch (FileNotFoundException e) {
@@ -117,5 +101,59 @@ public class PanelPrincipal {
                 }
             }
         });
+    }
+
+    private void XMLproveidor(Document doc,Element proveidor, Proveidor p){
+
+        Element nom = doc.createElement("nom");
+        proveidor.appendChild(nom);
+        nom.setTextContent(p.getNombre());
+
+        Element id_adreca = doc.createElement("id_adreca");
+        proveidor.appendChild(id_adreca);
+        id_adreca.setTextContent(String.valueOf(p.adreça.getId_Adreça()));
+
+        Element telefon = doc.createElement("telefon");
+        proveidor.appendChild(telefon);
+        telefon.setTextContent(p.getNombre());
+
+        Element cif = doc.createElement("cif");
+        proveidor.appendChild(cif);
+        cif.setTextContent(p.getCif());
+
+        Element activo = doc.createElement("activo");
+        proveidor.appendChild(activo);
+        activo.setTextContent(p.getActivo());
+    }
+
+    private void XMLadreca(Document doc,Element adreca, Proveidor p){
+
+        Element id_tipus_adreca = doc.createElement("id_tipus_adreca");
+        adreca.appendChild(id_tipus_adreca);
+        id_tipus_adreca.setTextContent(p.adreça.getTipo_de_via());
+
+        Element id_localitat = doc.createElement("id_localitat");
+        adreca.appendChild(id_localitat);
+        id_localitat.setTextContent(String.valueOf(p.adreça.getId_localidad()));
+
+        Element adescripcio = doc.createElement("carrer");
+        adreca.appendChild(adescripcio);
+        adescripcio.setTextContent(p.adreça.getCarrer());
+
+        Element numero = doc.createElement("numero_portal");
+        adreca.appendChild(numero);
+        numero.setTextContent(p.adreça.getnPortal());
+
+        Element portal = doc.createElement("lletra_portal");
+        adreca.appendChild(portal);
+        portal.setTextContent(p.adreça.getLletraPortal());
+
+        Element pis = doc.createElement("piso");
+        adreca.appendChild(pis);
+        pis.setTextContent(p.adreça.getPisoYLetra());
+
+        Element codiPostal = doc.createElement("codi_postal");
+        adreca.appendChild(codiPostal);
+        codiPostal.setTextContent(p.adreça.getCodigoPostal());
     }
 }
