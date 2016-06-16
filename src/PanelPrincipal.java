@@ -21,7 +21,12 @@ public class PanelPrincipal {
         insertarProveidorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                InsertDialog id = new InsertDialog(frame);
+                InsertDialog id = null;
+                try {
+                    id = new InsertDialog(frame);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 id.pack();
                 id.setVisible(true);
             }

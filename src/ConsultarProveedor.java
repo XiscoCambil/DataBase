@@ -19,9 +19,7 @@ public class ConsultarProveedor extends JDialog {
     private JTextField nombreMFild;
     private JTextField cifMFild;
     private JTextField telefonMField;
-    private JTextField activoMFild;
     private JTextField nportalMField;
-    private JTextField localidadMField;
     private JTextField llypMFild;
     private JTextField calleMFild;
     private JTextField pyllMField;
@@ -29,7 +27,12 @@ public class ConsultarProveedor extends JDialog {
     private JComboBox comboBox1;
     private JComboBox comboBox2;
     private JTextField cpostalMField;
+    private JComboBox comboBox3;
+    private JComboBox comboBox4;
+    private JComboBox comboBox5;
     private DefaultTableModel dtm;
+
+    List<String> localidades = Programa.db.ObtenerNombreLocalidades();
 
     String nombreN = "";
     String cifN = "";
@@ -41,17 +44,17 @@ public class ConsultarProveedor extends JDialog {
     String llportalN = "";
     String plletraN = "";
     String codigo_postalN = "";
+    String tipus_adreçaN = "";
 
+    int id_proveidor;
+    int id_adreca;
     String nombre = "";
     String cif = "";
     String localidad = "";
     String activo = "";
     String telefon = "";
-    String calle = "";
-    String nportal = "";
-    String llportal = "";
-    String plletra = "";
-    String codigo_postal = "";
+
+
 
     public ConsultarProveedor() throws SQLException {
         setContentPane(contentPane);
@@ -63,8 +66,11 @@ public class ConsultarProveedor extends JDialog {
         dtm.addColumn("localidad");
         dtm.addColumn("activo");
         table1.setModel(dtm);
-        CreateComboLocalitat();
-        CreateComboActivo();
+        CreateComboLocalitat(comboBox1);
+        CreateComboActivo(comboBox2);
+        CreateComboLocalitat(comboBox3);
+        CreateComboActivo(comboBox4);
+        CreateComboTipoCarrer(comboBox5);
 
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -99,7 +105,6 @@ public class ConsultarProveedor extends JDialog {
                 try {
                     if (table1.getSelectedRow() >= 0) {
                         SeleccionProveedor();
-                        ObtenerValoresAntiguosCamposModificar();
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -110,17 +115,21 @@ public class ConsultarProveedor extends JDialog {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 ObtenerValoresNuevosCamposModificar();
-                Adreça a = new Adreça(calle,localidad,codigo_postal,plletra,llportal,nportal);
+                Adreça a = new Adreça(calleN,localidadN,codigo_postalN,plletraN,llportalN,nportalN,tipus_adreçaN);
+                a.setId_Adreça(id_adreca);
                 try {
-                    a.setId_localidad(Programa.db.ObtenerIdLocalidad(localidad));
+                    a.setId_localidad(Programa.db.ObtenerIdLocalidad(localidadN));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                Proveidor p = new Proveidor(nombre,telefon,cif,activo,a);
+                Proveidor p = new Proveidor(nombreN,telefonN,cifN,activoN,a);
+                p.setId_proveidor(id_proveidor);
                 try {
                     Programa.db.ModificarProveedor(p);
+                    JOptionPane.showMessageDialog(null,"Modificacion realizada con exito");
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    JOptionPane.showMessageDialog(null,"Error en modificacion, se ha cancelado la accion");
                 }
             }
         });
@@ -134,23 +143,23 @@ public class ConsultarProveedor extends JDialog {
         activo = (String) comboBox2.getSelectedItem();
     }
 
-    private void CreateComboLocalitat() throws SQLException {
+    private void CreateComboLocalitat(JComboBox comboBox) throws SQLException {
         DefaultComboBoxModel dcb = new DefaultComboBoxModel();
-        List<String> localidades = Programa.db.ObtenerNombreLocalidades();
         dcb.addElement("...");
         for (String localidad : localidades) {
             dcb.addElement(localidad);
         }
-        comboBox1.setModel(dcb);
-        comboBox1.setVisible(true);
+        comboBox.setModel(dcb);
+        comboBox.setVisible(true);
     }
 
-    private void CreateComboActivo() {
+    private void CreateComboActivo(JComboBox comboBox) {
         DefaultComboBoxModel dcb = new DefaultComboBoxModel();
+        dcb.addElement("...");
         dcb.addElement("s");
         dcb.addElement("n");
-        comboBox2.setModel(dcb);
-        comboBox2.setVisible(true);
+        comboBox.setModel(dcb);
+        comboBox.setVisible(true);
     }
 
     private void SeleccionProveedor() throws SQLException {
@@ -161,19 +170,32 @@ public class ConsultarProveedor extends JDialog {
         RellenarCampos(rs);
     }
 
+    private void CreateComboTipoCarrer(JComboBox comboBox) throws SQLException {
+        DefaultComboBoxModel dcb = new DefaultComboBoxModel();
+        List<TipusCarrer> tipos = Programa.db.ObtenerNombreTipusCarrer();
+        dcb.addElement("...");
+        for (TipusCarrer t : tipos) {
+            dcb.addElement(t.abrev);
+        }
+        comboBox.setModel(dcb);
+        comboBox.setVisible(true);
+    }
+
     private void RellenarCampos(ResultSet rs) throws SQLException {
+        id_proveidor = rs.getInt("p.id_proveidor");
+        id_adreca = rs.getInt("a.id_adreca");
         nombreMFild.setText(rs.getString("p.nom"));
         nombreMFild.setEnabled(true);
         telefonMField.setText(rs.getString("p.telefon"));
         telefonMField.setEnabled(true);
         cifMFild.setText(rs.getString("p.CIF"));
         cifMFild.setEnabled(true);
-        activoMFild.setText(rs.getString("p.activo"));
-        activoMFild.setEnabled(true);
+        comboBox3.setSelectedItem(rs.getString("l.descripcio"));
+        comboBox3.setEnabled(true);
         nportalMField.setText(rs.getString("a.numero"));
         nportalMField.setEnabled(true);
-        localidadMField.setText(rs.getString("l.descripcio"));
-        localidadMField.setEnabled(true);
+        comboBox4.setSelectedItem(rs.getString("p.activo"));
+        comboBox4.setEnabled(true);
         llypMFild.setText(rs.getString("a.porta"));
         llypMFild.setEnabled(true);
         pyllMField.setText(rs.getString("a.pis"));
@@ -182,6 +204,8 @@ public class ConsultarProveedor extends JDialog {
         calleMFild.setEnabled(true);
         cpostalMField.setText(rs.getString("a.codi_postal"));
         cpostalMField.setEnabled(true);
+        comboBox5.setSelectedItem(rs.getString("t.abreviatura"));
+        comboBox5.setEnabled(true);
     }
 
     private void ResetearCampos() {
@@ -191,12 +215,12 @@ public class ConsultarProveedor extends JDialog {
         telefonMField.setEnabled(false);
         cifMFild.setText("");
         cifMFild.setEnabled(false);
-        activoMFild.setText("");
-        activoMFild.setEnabled(false);
+        comboBox3.setSelectedItem( "...");
+        comboBox3.setEnabled(false);
         nportalMField.setText("");
         nportalMField.setEnabled(false);
-        localidadMField.setText("");
-        localidadMField.setEnabled(false);
+        comboBox4.setSelectedItem("...");
+        comboBox4.setEnabled(false);
         llypMFild.setText("");
         llypMFild.setEnabled(false);
         pyllMField.setText("");
@@ -205,13 +229,16 @@ public class ConsultarProveedor extends JDialog {
         calleMFild.setEnabled(false);
         cpostalMField.setText("");
         cpostalMField.setEnabled(false);
+        comboBox5.setSelectedItem("...");
+        comboBox5.setEnabled(false);
     }
 
     private void ObtenerValoresNuevosCamposModificar(){
+        tipus_adreçaN = (String) comboBox5.getSelectedItem();
         nombreN = nombreMFild.getText();
         cifN = cifMFild.getText();
-        localidadN = localidadMField.getText();
-        activoN = activoMFild.getText();
+        localidadN = (String) comboBox3.getSelectedItem();
+        activoN =  (String) comboBox4.getSelectedItem();
         telefonN = telefonMField.getText();
         calleN = calleMFild.getText();
         nportalN = nportalMField.getText();
@@ -220,17 +247,5 @@ public class ConsultarProveedor extends JDialog {
         codigo_postalN = cpostalMField.getText();
     }
 
-    private void ObtenerValoresAntiguosCamposModificar(){
-        nombre = nombreMFild.getText();
-        cif = cifMFild.getText();
-        localidad = localidadMField.getText();
-        activo = activoMFild.getText();
-        telefon = telefonMField.getText();
-        calle = calleMFild.getText();
-        nportal = nportalMField.getText();
-        llportal = llypMFild.getText();
-        plletra = pyllMField.getText();
-        codigo_postal = cpostalMField.getText();
-    }
 
 }

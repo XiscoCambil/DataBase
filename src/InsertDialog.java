@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.List;
 
 public class InsertDialog extends JDialog {
     private JPanel contentPane;
@@ -15,7 +16,10 @@ public class InsertDialog extends JDialog {
     private JTextField lletraPortalFild;
     private JTextField PisoLetraFild;
     private JTextField codigoPostalFild;
-    private JTextField localidadFild;
+    private JComboBox comboBox1;
+    private JComboBox comboBox2;
+    private JTextPane losCamposConSonTextPane;
+
 
     String nombre = "";
     String telefon = "";
@@ -26,12 +30,15 @@ public class InsertDialog extends JDialog {
     String PisoYLetra = "";
     String codigoPostal = "";
     String localidad = "";
+    String tipus_carrer = "";
 
-    public InsertDialog(JFrame parent) {
+    public InsertDialog(JFrame parent) throws SQLException {
         super(parent);
         setLocationRelativeTo(parent);
         setContentPane(contentPane);
         setModal(true);
+        CreateComboLocalitat(comboBox1);
+        CreateComboTipoCarrer(comboBox2);
         getRootPane().setDefaultButton(buttonOK);
         buttonCancel.addActionListener(new ActionListener() {
             @Override
@@ -43,14 +50,18 @@ public class InsertDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 ObtenerValores();
-                Adreça adreça = new Adreça(carrer, localidad, codigoPostal, PisoYLetra, lletraPortal, nPortal);
-                Proveidor proveidor = new Proveidor(nombre, telefon, cif, "s", adreça);
-                try {
-                    Programa.db.InsertarProveidor(adreça, proveidor);
-                    JOptionPane.showMessageDialog(null, "Proveedor insertado correctamente");
-                    dispose();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                if(nombre.isEmpty() || telefon.isEmpty() || cif.isEmpty() || carrer.isEmpty() || localidad.isEmpty() || tipus_carrer.isEmpty() || codigoPostal.isEmpty()){
+                    JOptionPane.showMessageDialog(null,"Faltan campos obligatorios por rellenar");
+                }else {
+                    Adreça adreça = new Adreça(carrer, localidad, codigoPostal, PisoYLetra, lletraPortal, nPortal,tipus_carrer);
+                    Proveidor proveidor = new Proveidor(nombre, telefon, cif, "s", adreça);
+                    try {
+                        Programa.db.InsertarProveidor(adreça, proveidor);
+                        JOptionPane.showMessageDialog(null, "Proveedor insertado correctamente");
+                        dispose();
+                    } catch (SQLException e) {
+                        JOptionPane.showMessageDialog(null, "ha habido un error en la inserccion");
+                    }
                 }
             }
         });
@@ -65,6 +76,30 @@ public class InsertDialog extends JDialog {
         lletraPortal = lletraPortalFild.getText();
         PisoYLetra = PisoLetraFild.getText();
         codigoPostal = codigoPostalFild.getText();
-        localidad = localidadFild.getText().toUpperCase();
+        localidad = (String) comboBox1.getSelectedItem();
+        tipus_carrer = (String) comboBox2.getSelectedItem();
+
+    }
+
+    private void CreateComboLocalitat(JComboBox comboBox) throws SQLException {
+        DefaultComboBoxModel dcb = new DefaultComboBoxModel();
+        List<String> localidades = Programa.db.ObtenerNombreLocalidades();
+        dcb.addElement("...");
+        for (String localidad : localidades) {
+            dcb.addElement(localidad);
+        }
+        comboBox.setModel(dcb);
+        comboBox.setVisible(true);
+    }
+
+    private void CreateComboTipoCarrer(JComboBox comboBox) throws SQLException {
+        DefaultComboBoxModel dcb = new DefaultComboBoxModel();
+        List<TipusCarrer> tipos = Programa.db.ObtenerNombreTipusCarrer();
+        dcb.addElement("...");
+        for (TipusCarrer t : tipos) {
+            dcb.addElement(t.abrev);
+        }
+        comboBox.setModel(dcb);
+        comboBox.setVisible(true);
     }
 }

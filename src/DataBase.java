@@ -32,11 +32,8 @@ public class DataBase {
             String CONNECTION = "jdbc:mysql://" + server + "/gestio";
             // Now try to connect
             c = DriverManager.getConnection(CONNECTION, p);
-            PanelPrincipal pp = new PanelPrincipal();
-
         } catch (Exception e) {
-            System.out.println("Error en la conexion");
-
+            System.out.println(e);
         }
     }
 
@@ -45,7 +42,6 @@ public class DataBase {
         int id_localidad = ObtenerIdLocalidad(adreça.getLocalidad());
         adreça.setId_Adreça(id_adreça);
         adreça.setId_localidad(id_localidad);
-        proveidor.setId_adreça(id_adreça);
         InsertAdr(adreça);
         InsertPro(proveidor);
     }
@@ -68,6 +64,17 @@ public class DataBase {
         ResultSet rs2 = ps2.executeQuery();
         rs2.next();
         return rs2.getInt("id_localitat");
+
+    }
+
+    public int ObtenerIdTipoVia(String abreviatura) throws SQLException {
+        //Obtenemos el idetificador de la localidad.
+        String consultaAbreviatura = "SELECT id_tipus_adreca FROM TIPUS_ADRECA WHERE abreviatura=?";
+        PreparedStatement ps2 = c.prepareStatement(consultaAbreviatura);
+        ps2.setString(1, abreviatura);
+        ResultSet rs2 = ps2.executeQuery();
+        rs2.next();
+        return rs2.getInt("id_tipus_adreca");
 
     }
 
@@ -96,7 +103,7 @@ public class DataBase {
             String InsertProveedor = "INSERT INTO PROVEIDOR (nom,id_adreça,telefon,CIF,activo) VALUES(?,?,?,?,?)";
             PreparedStatement inProveidor = c.prepareStatement(InsertProveedor);
             inProveidor.setString(1, proveidor.getNombre());
-            inProveidor.setInt(2, proveidor.getId_adreça());
+            inProveidor.setInt(2, proveidor.adreça.getId_Adreça());
             inProveidor.setString(3, proveidor.getTelefon());
             inProveidor.setString(4, proveidor.getCif());
             inProveidor.setString(5, "s");
@@ -129,8 +136,24 @@ public class DataBase {
         return localidades;
     }
 
+    public List<TipusCarrer> ObtenerNombreTipusCarrer() throws SQLException {
+        List<TipusCarrer> tipusCarrers = new ArrayList<>();
+        String sql = "select * from TIPUS_ADRECA";
+        PreparedStatement preparedStatement = c.prepareStatement(sql);
+        // execute select SQL stetement
+        ResultSet rs = preparedStatement.executeQuery();
+        while (rs.next()) {
+            tipusCarrers.add(new TipusCarrer(rs.getInt("id_tipus_adreca"),rs.getString("descripcio"),rs.getString("abreviatura")));
+        }
+        return tipusCarrers;
+    }
+
+
+
+
     public ResultSet ConsultaProveidor(Proveidor p) throws SQLException {
         List<String> valores = new ArrayList<>();
+        String sql = "";
         if (!p.getNombre().isEmpty()) {
             valores.add("p.nom");
             valores.add(p.getNombre());
@@ -143,7 +166,7 @@ public class DataBase {
             valores.add("p.CIF");
             valores.add(p.getCif());
         }
-        if (!p.getActivo().isEmpty()) {
+        if (p.getActivo() != "...") {
             valores.add("p.activo");
             valores.add(p.getActivo());
         }
@@ -151,7 +174,11 @@ public class DataBase {
             valores.add("l.descripcio");
             valores.add(p.getLocalidad());
         }
-        String sql = "SELECT p.nom,p.telefon,p.cif,l.descripcio,p.activo FROM( PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat WHERE ";
+        if(valores.size() == 0){
+          sql += "SELECT p.nom,p.telefon,p.cif,l.descripcio,p.activo FROM( PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat";
+        }else {
+            sql += "SELECT p.nom,p.telefon,p.cif,l.descripcio,p.activo FROM( PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat WHERE ";
+        }
         for (int i = 0; i < valores.size(); i += 2) {
             if (i == valores.size() - 2) {
                 sql += valores.get(i) + "=?";
@@ -168,7 +195,7 @@ public class DataBase {
     }
 
     public ResultSet ObtenerValoresRellenarCampos(Proveidor p) throws SQLException {
-        String sql = "SELECT p.nom,p.telefon,p.CIF,p.activo,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio FROM(PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat WHERE CIF=? ";
+        String sql = "SELECT p.id_proveidor,p.nom,p.telefon,p.CIF,p.activo,a.id_adreca,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio,t.abreviatura FROM((PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat)INNER JOIN TIPUS_ADRECA AS t ON t.id_tipus_adreca = a.id_tipus_adreca  WHERE CIF=? ";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setString(1, p.getCif());
         ResultSet rs = ps.executeQuery();
@@ -176,13 +203,14 @@ public class DataBase {
     }
 
     public void ModificarProveedor(Proveidor p) throws SQLException {
-
-
+        UpdateAdreca(p);
+        UpdateProveidor(p);
     }
 
     private void UpdateAdreca(Proveidor p) throws SQLException {
         p.adreça.setId_localidad(ObtenerIdLocalidad(p.adreça.getLocalidad()));
-        String sql = "UPDATE ADRECA SET id_localitat=?,descripcio=?,numero=?,porta=?,pis=?,codi_postal=? WHERE ";
+        p.adreça.setTipo_Via(ObtenerIdTipoVia(p.adreça.getTipo_de_via()));
+        String sql = "UPDATE ADRECA SET id_localitat=?,descripcio=?,numero=?,porta=?,pis=?,codi_postal=?,id_tipus_adreca=? WHERE id_adreca=?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1,p.adreça.getId_localidad());
         ps.setString(2, p.adreça.getCarrer());
@@ -190,16 +218,19 @@ public class DataBase {
         ps.setString(4, p.adreça.getLletraPortal());
         ps.setString(5, p.adreça.getPisoYLetra());
         ps.setString(6, p.adreça.getCodigoPostal());
+        ps.setInt(7, p.adreça.getTipo_Via());
+        ps.setInt(8,p.adreça.getId_Adreça());
         ps.execute();
     }
 
     private void UpdateProveidor(Proveidor p) throws SQLException {
-        String sql = "UPDATE PROVEIDOR SET nom=?,telefon?,CIF=?,activo=?";
+        String sql = "UPDATE PROVEIDOR SET nom=?,telefon=?,CIF=?,activo=? WHERE id_proveidor=?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setString(1,p.getNombre());
         ps.setString(2,p.getTelefon());
         ps.setString(3,p.getCif());
         ps.setString(4,p.getActivo());
+        ps.setInt(5,p.getId_proveidor());
         ps.execute();
     }
 
@@ -213,9 +244,26 @@ public class DataBase {
 
 }
 
+class TipusCarrer{
+        public int id_tipus_adreça;
+
+    public TipusCarrer(int id_tipus_adreça, String descripcio, String abrev) {
+        this.id_tipus_adreça = id_tipus_adreça;
+        this.descripcio = descripcio;
+        this.abrev = abrev;
+    }
+
+    public String descripcio;
+        public String abrev;
+
+
+
+        }
+
 class Proveidor {
 
-    public int id_adreça;
+
+    public int id_proveidor;
     public String nombre;
     public String telefon;
     public String cif;
@@ -239,6 +287,14 @@ class Proveidor {
         this.activo = activo;
     }
 
+    public int getId_proveidor() {
+        return id_proveidor;
+    }
+
+    public void setId_proveidor(int id_proveidor) {
+        this.id_proveidor = id_proveidor;
+    }
+
     public String getLocalidad() {
         return localidad;
     }
@@ -247,18 +303,10 @@ class Proveidor {
         this.localidad = localidad;
     }
 
-    public int getId_adreça() {
-        return id_adreça;
-    }
-
-    public void setId_adreça(int id_adreça) {
-        this.id_adreça = id_adreça;
-    }
 
     public String getCif() {
         return cif;
     }
-
 
     public String getActivo() {
         return activo;
@@ -276,12 +324,12 @@ class Proveidor {
 
 class Programa {
     static DataBase db;
-
     public static void main(String[] args) throws Exception {
-        db = new DataBase("172.16.10.156", "root", "terremoto11");
+
+        db = new DataBase("192.168.1.11", "root", "terremoto11");
+        PanelPrincipal pp = new PanelPrincipal();
 
     }
-
 }
 
 class Adreça {
@@ -293,18 +341,33 @@ class Adreça {
     public String PisoYLetra = "";
     public String codigoPostal = "";
     public String localidad = "";
-    public int tipo_Via = 1;
+    public String tipo_de_via = "";
+    public int tipo_Via;
     public int id_localidad;
 
 
-    public Adreça(String carrer, String localidad, String codigoPostal, String pisoYLetra, String lletraPortal, String nPortal) {
+    public Adreça(String carrer, String localidad, String codigoPostal, String pisoYLetra, String lletraPortal, String nPortal,String tipo_de_via) {
         this.carrer = carrer;
         this.localidad = localidad;
         this.codigoPostal = codigoPostal;
         this.PisoYLetra = pisoYLetra;
         this.lletraPortal = lletraPortal;
         this.nPortal = nPortal;
+        this.tipo_de_via = tipo_de_via;
 
+    }
+
+    public String getTipo_de_via() {
+        return tipo_de_via;
+    }
+
+    public void setTipo_de_via(String tipo_de_via) {
+        this.tipo_de_via = tipo_de_via;
+    }
+
+
+    public void setTipo_Via(int tipo_Via) {
+        this.tipo_Via = tipo_Via;
     }
 
     public String getCarrer() {
