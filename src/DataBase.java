@@ -1,4 +1,8 @@
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import javax.swing.*;
+import java.io.FileInputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,12 +147,26 @@ public class DataBase {
         // execute select SQL stetement
         ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
-            tipusCarrers.add(new TipusCarrer(rs.getInt("id_tipus_adreca"),rs.getString("descripcio"),rs.getString("abreviatura")));
+            tipusCarrers.add(new TipusCarrer(rs.getInt("id_tipus_adreca"), rs.getString("descripcio"), rs.getString("abreviatura")));
         }
         return tipusCarrers;
     }
 
-
+    public List<Proveidor> ObtenerDump() throws SQLException {
+       String sql = "SELECT * FROM ((ADRECA as a INNER JOIN PROVEIDOR as p ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat)INNER JOIN TIPUS_ADRECA as t ON t.id_tipus_adreca = a.id_tipus_adreca ";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        List<Proveidor> proveedores = new ArrayList<>();
+        while (rs.next()){
+            Adreça a = new Adreça(rs.getString("a.descripcio"),rs.getString("l.descripcio"),rs.getString("a.codi_postal"),rs.getString("a.pis"),rs.getString("a.porta"),rs.getString("a.numero"),rs.getString("t.abreviatura"));
+            a.setId_localidad(ObtenerIdLocalidad(a.getLocalidad()));
+            a.setId_Adreça(rs.getInt("a.id_adreca"));
+            a.setTipo_Via(ObtenerIdTipoVia(a.getTipo_de_via()));
+            Proveidor p = new Proveidor(rs.getString("p.nom"),rs.getString("p.telefon"),rs.getString("p.CIF"),rs.getString("p.activo"),a);
+            proveedores.add(p);
+        }
+        return proveedores;
+   }
 
 
     public ResultSet ConsultaProveidor(Proveidor p) throws SQLException {
@@ -174,9 +192,9 @@ public class DataBase {
             valores.add("l.descripcio");
             valores.add(p.getLocalidad());
         }
-        if(valores.size() == 0){
-          sql += "SELECT p.nom,p.telefon,p.cif,l.descripcio,p.activo FROM( PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat";
-        }else {
+        if (valores.size() == 0) {
+            sql += "SELECT p.nom,p.telefon,p.cif,l.descripcio,p.activo FROM( PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat";
+        } else {
             sql += "SELECT p.nom,p.telefon,p.cif,l.descripcio,p.activo FROM( PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat WHERE ";
         }
         for (int i = 0; i < valores.size(); i += 2) {
@@ -207,45 +225,44 @@ public class DataBase {
         UpdateProveidor(p);
     }
 
+    public void EliminarProveedor(Proveidor p) throws SQLException {
+        String sql = "UPDATE PROVEIDOR SET activo='n' WHERE CIF=?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1, p.getCif());
+        ps.execute();
+    }
+
     private void UpdateAdreca(Proveidor p) throws SQLException {
         p.adreça.setId_localidad(ObtenerIdLocalidad(p.adreça.getLocalidad()));
         p.adreça.setTipo_Via(ObtenerIdTipoVia(p.adreça.getTipo_de_via()));
         String sql = "UPDATE ADRECA SET id_localitat=?,descripcio=?,numero=?,porta=?,pis=?,codi_postal=?,id_tipus_adreca=? WHERE id_adreca=?";
         PreparedStatement ps = c.prepareStatement(sql);
-        ps.setInt(1,p.adreça.getId_localidad());
+        ps.setInt(1, p.adreça.getId_localidad());
         ps.setString(2, p.adreça.getCarrer());
         ps.setString(3, p.adreça.getnPortal());
         ps.setString(4, p.adreça.getLletraPortal());
         ps.setString(5, p.adreça.getPisoYLetra());
         ps.setString(6, p.adreça.getCodigoPostal());
         ps.setInt(7, p.adreça.getTipo_Via());
-        ps.setInt(8,p.adreça.getId_Adreça());
+        ps.setInt(8, p.adreça.getId_Adreça());
         ps.execute();
     }
 
     private void UpdateProveidor(Proveidor p) throws SQLException {
         String sql = "UPDATE PROVEIDOR SET nom=?,telefon=?,CIF=?,activo=? WHERE id_proveidor=?";
         PreparedStatement ps = c.prepareStatement(sql);
-        ps.setString(1,p.getNombre());
-        ps.setString(2,p.getTelefon());
-        ps.setString(3,p.getCif());
-        ps.setString(4,p.getActivo());
-        ps.setInt(5,p.getId_proveidor());
+        ps.setString(1, p.getNombre());
+        ps.setString(2, p.getTelefon());
+        ps.setString(3, p.getCif());
+        ps.setString(4, p.getActivo());
+        ps.setInt(5, p.getId_proveidor());
         ps.execute();
-    }
-
-    private ResultSet ValoresAntiguosAdreca(Proveidor p) throws SQLException {
-        String sql = "SELECT a.id_localitat,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal FROM ADRECA as a INNER JOIN PROVEIDOR as p ON a.id_adreca = p.id_adreça WHERE p.CIF=?";
-        PreparedStatement ps = c.prepareStatement(sql);
-        ps.setString(1,p.getCif());
-        ResultSet rs = ps.executeQuery();
-        return rs;
     }
 
 }
 
-class TipusCarrer{
-        public int id_tipus_adreça;
+class TipusCarrer {
+    public int id_tipus_adreça;
 
     public TipusCarrer(int id_tipus_adreça, String descripcio, String abrev) {
         this.id_tipus_adreça = id_tipus_adreça;
@@ -254,11 +271,10 @@ class TipusCarrer{
     }
 
     public String descripcio;
-        public String abrev;
+    public String abrev;
 
 
-
-        }
+}
 
 class Proveidor {
 
@@ -270,6 +286,7 @@ class Proveidor {
     public String activo;
     public String localidad;
     public Adreça adreça;
+
 
 
     public Proveidor(String nombre, String telefon, String cif, String activo, Adreça adreça) {
@@ -285,6 +302,10 @@ class Proveidor {
         this.telefon = telefon;
         this.cif = cif;
         this.activo = activo;
+    }
+
+    public Proveidor(String cif){
+        this.cif =  cif;
     }
 
     public int getId_proveidor() {
@@ -324,9 +345,18 @@ class Proveidor {
 
 class Programa {
     static DataBase db;
-    public static void main(String[] args) throws Exception {
 
-        db = new DataBase("192.168.1.11", "root", "terremoto11");
+    public static void main(String[] args) throws Exception {
+        String username;
+        String password;
+        String server;
+        SimpleXML configXml = new SimpleXML(new FileInputStream("src/xml/config.xml"));
+        Document doc = configXml.getDoc();
+        Element raiz = doc.getDocumentElement();
+        username = configXml.getElement(raiz,"usuario").getTextContent();
+        password = configXml.getElement(raiz,"password").getTextContent();
+        server = configXml.getElement(raiz,"server").getTextContent();
+         db = new DataBase(server,username,password);
         PanelPrincipal pp = new PanelPrincipal();
 
     }
@@ -346,7 +376,7 @@ class Adreça {
     public int id_localidad;
 
 
-    public Adreça(String carrer, String localidad, String codigoPostal, String pisoYLetra, String lletraPortal, String nPortal,String tipo_de_via) {
+    public Adreça(String carrer, String localidad, String codigoPostal, String pisoYLetra, String lletraPortal, String nPortal, String tipo_de_via) {
         this.carrer = carrer;
         this.localidad = localidad;
         this.codigoPostal = codigoPostal;
@@ -361,9 +391,7 @@ class Adreça {
         return tipo_de_via;
     }
 
-    public void setTipo_de_via(String tipo_de_via) {
-        this.tipo_de_via = tipo_de_via;
-    }
+
 
 
     public void setTipo_Via(int tipo_Via) {

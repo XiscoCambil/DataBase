@@ -30,6 +30,7 @@ public class ConsultarProveedor extends JDialog {
     private JComboBox comboBox3;
     private JComboBox comboBox4;
     private JComboBox comboBox5;
+    private JButton eliminarButton;
     private DefaultTableModel dtm;
 
     List<String> localidades = Programa.db.ObtenerNombreLocalidades();
@@ -71,6 +72,7 @@ public class ConsultarProveedor extends JDialog {
         CreateComboLocalitat(comboBox3);
         CreateComboActivo(comboBox4);
         CreateComboTipoCarrer(comboBox5);
+        ResetearCampos();
 
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -101,7 +103,6 @@ public class ConsultarProveedor extends JDialog {
         });
         table1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent event) {
-                System.out.println(table1.getSelectedRow());
                 try {
                     if (table1.getSelectedRow() >= 0) {
                         SeleccionProveedor();
@@ -114,22 +115,45 @@ public class ConsultarProveedor extends JDialog {
         modificarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                ObtenerValoresNuevosCamposModificar();
-                Adreça a = new Adreça(calleN,localidadN,codigo_postalN,plletraN,llportalN,nportalN,tipus_adreçaN);
-                a.setId_Adreça(id_adreca);
-                try {
-                    a.setId_localidad(Programa.db.ObtenerIdLocalidad(localidadN));
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                if (table1.getSelectedRow() < 0) {
+                    JOptionPane.showMessageDialog(null, "No hay registro seleccionado");
+                } else {
+                    ObtenerValoresNuevosCamposModificar();
+                    if (tipus_adreçaN == "..." || localidadN == "..." || activoN == "...") {
+                        JOptionPane.showMessageDialog(null, "Seleccione un valor en todos los desplegables");
+                    } else {
+                        Adreça a = new Adreça(calleN, localidadN, codigo_postalN, plletraN, llportalN, nportalN, tipus_adreçaN);
+                        a.setId_Adreça(id_adreca);
+                        try {
+                            a.setId_localidad(Programa.db.ObtenerIdLocalidad(localidadN));
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        Proveidor p = new Proveidor(nombreN, telefonN, cifN, activoN, a);
+                        p.setId_proveidor(id_proveidor);
+                        try {
+                            Programa.db.ModificarProveedor(p);
+                            JOptionPane.showMessageDialog(null, "Modificacion realizada con exito");
+                        } catch (SQLException e) {
+                            JOptionPane.showMessageDialog(null, "Error en modificacion, se ha cancelado la accion");
+                        }
+                    }
                 }
-                Proveidor p = new Proveidor(nombreN,telefonN,cifN,activoN,a);
-                p.setId_proveidor(id_proveidor);
-                try {
-                    Programa.db.ModificarProveedor(p);
-                    JOptionPane.showMessageDialog(null,"Modificacion realizada con exito");
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(null,"Error en modificacion, se ha cancelado la accion");
+            }
+        });
+        eliminarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (table1.getSelectedRow() < 0) {
+                    JOptionPane.showMessageDialog(null, "No hay registro seleccionado");
+                } else {
+                    Proveidor p = new Proveidor(cifN);
+                    try {
+                        Programa.db.EliminarProveedor(p);
+                        JOptionPane.showMessageDialog(null,"Proveedor dado de baja");
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -182,6 +206,7 @@ public class ConsultarProveedor extends JDialog {
     }
 
     private void RellenarCampos(ResultSet rs) throws SQLException {
+        cifN = rs.getString("p.CIF");
         id_proveidor = rs.getInt("p.id_proveidor");
         id_adreca = rs.getInt("a.id_adreca");
         nombreMFild.setText(rs.getString("p.nom"));

@@ -291,6 +291,14 @@
               <text value="Consulta"/>
             </properties>
           </component>
+          <component id="4a714" class="javax.swing.JButton" binding="eliminarButton" default-binding="true">
+            <constraints>
+              <grid row="1" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Eliminar"/>
+            </properties>
+          </component>
         </children>
       </grid>
       <scrollpane id="cbe2">
