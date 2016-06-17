@@ -21,16 +21,16 @@ public class InsertDialog extends JDialog {
     private JTextPane losCamposConSonTextPane;
 
 
-    String nombre = "";
-    String telefon = "";
-    String cif = "";
-    String carrer = "";
-    String nPortal = "";
-    String lletraPortal = "";
-    String PisoYLetra = "";
-    String codigoPostal = "";
-    String localidad = "";
-    String tipus_carrer = "";
+    private String nombre = "";
+    private String telefon = "";
+    private String cif = "";
+    private String carrer = "";
+    private String nPortal = "";
+    private String lletraPortal = "";
+    private String PisoYLetra = "";
+    private String codigoPostal = "";
+    private String localidad = "";
+    private String tipus_carrer = "";
 
     public InsertDialog(JFrame parent) throws SQLException {
         super(parent);

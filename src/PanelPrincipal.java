@@ -24,7 +24,7 @@ public class PanelPrincipal {
     private JPanel panel;
     private JButton exportarBaseDeDatosButton;
     private JButton importarBaseDeDatosButton;
-    private static JFrame frame = new JFrame("Proveedor");
+    private static final JFrame frame = new JFrame("Proveedor");
 
     public PanelPrincipal() {
         frame.setContentPane(panel);
@@ -74,7 +74,7 @@ public class PanelPrincipal {
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
                     List<Proveidor> proveedores = Programa.db.ObtenerDump();
-                   ExportarXML(proveedores);
+                    ExportarXML(proveedores);
                 } catch (ParserConfigurationException e) {
                     e.printStackTrace();
                 } catch (FileNotFoundException e) {
@@ -92,7 +92,7 @@ public class PanelPrincipal {
                 JFileChooser jfc = new JFileChooser();
                 int code = jfc.showOpenDialog(frame);
                 jfc.getFileFilter();
-                if(code == JFileChooser.APPROVE_OPTION) {
+                if (code == JFileChooser.APPROVE_OPTION) {
                     try {
                         SimpleXML importXml = new SimpleXML(new FileInputStream(jfc.getSelectedFile().getPath()));
                         Document doc = importXml.getDoc();
@@ -104,40 +104,33 @@ public class PanelPrincipal {
                             String nom = importXml.getElement(element, "nom").getTextContent();
                             int id_adreca = Integer.parseInt(importXml.getElement(element, "id_adreca").getTextContent());
                             String telefon = importXml.getElement(element, "telefon").getTextContent();
-                            String cif = importXml.getElement(element,"cif").getTextContent();
-                            String activo = importXml.getElement(element,"activo").getTextContent();
-                            int id_tipus_adreca = Integer.parseInt(importXml.getElement(element,"id_tipus_adreca").getTextContent());
-                            int id_localitat = Integer.parseInt(importXml.getElement(element,"id_localitat").getTextContent());
-                            String carrer = importXml.getElement(element,"carrer").getTextContent();
-                            String numero_portal = importXml.getElement(element,"numero_portal").getTextContent();
-                            String lletra_portal = importXml.getElement(element,"lletra_portal").getTextContent();
-                            String piso = importXml.getElement(element,"piso").getTextContent();
-                            String codi_postal = importXml.getElement(element,"codi_postal").getTextContent();
-                            Adreça a = new Adreça(carrer,id_localitat,codi_postal,piso,lletra_portal,numero_portal,id_tipus_adreca);
+                            String cif = importXml.getElement(element, "cif").getTextContent();
+                            String activo = importXml.getElement(element, "activo").getTextContent();
+                            int id_tipus_adreca = Integer.parseInt(importXml.getElement(element, "id_tipus_adreca").getTextContent());
+                            int id_localitat = Integer.parseInt(importXml.getElement(element, "id_localitat").getTextContent());
+                            String carrer = importXml.getElement(element, "carrer").getTextContent();
+                            String numero_portal = importXml.getElement(element, "numero_portal").getTextContent();
+                            String lletra_portal = importXml.getElement(element, "lletra_portal").getTextContent();
+                            String piso = importXml.getElement(element, "piso").getTextContent();
+                            String codi_postal = importXml.getElement(element, "codi_postal").getTextContent();
+                            Adreça a = new Adreça(carrer, id_localitat, codi_postal, piso, lletra_portal, numero_portal, id_tipus_adreca);
                             a.setId_Adreça(id_adreca);
                             direcciones.add(a);
-                            Proveidor p = new Proveidor(nom,telefon,cif,activo,a);
+                            Proveidor p = new Proveidor(nom, telefon, cif, activo, a);
                             proveidors.add(p);
                         }
                         String insertSqlAdreca = "INSERT INTO ADRECA(id_adreca,id_tipus_adreca,id_localitat,descripcio,numero,porta,pis,codi_postal)VALUES(?,?,?,?,?,?,?,?)";
                         String InsertSqlProveidor = "INSERT INTO PROVEIDOR(nom,id_adreça,telefon,CIF,activo)VALUES(?,?,?,?,?)";
-                        Programa.db.InsertarXML(insertSqlAdreca,InsertSqlProveidor,direcciones, proveidors);
-                        JOptionPane.showMessageDialog(null,"Inportacion realizada con exito");
+                        Programa.db.InsertarXML(insertSqlAdreca, InsertSqlProveidor, direcciones, proveidors);
+                        JOptionPane.showMessageDialog(null, "Inportacion realizada con exito");
 
-                    } catch (SAXException e1) {
-                        e1.printStackTrace();
-                    } catch (FileNotFoundException e1) {
-                        e1.printStackTrace();
-                    } catch (ParserConfigurationException e1) {
-                        e1.printStackTrace();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
+                    } catch (Exception e1) {
+                        JOptionPane.showMessageDialog(null, "El archivo no se puede importar");
                     }
                 }
             }
         });
+
     }
 
     private static void XMLproveidor(Document doc, Element proveidor, Proveidor p){
@@ -194,7 +187,7 @@ public class PanelPrincipal {
         codiPostal.setTextContent(p.adreça.getCodigoPostal());
     }
 
-    public static void ExportarXML(List<Proveidor> proveedores) throws ParserConfigurationException, SQLException, FileNotFoundException, TransformerException {
+    public static void ExportarXML(List<Proveidor> proveedores) throws ParserConfigurationException, FileNotFoundException, TransformerException {
         JFileChooser jfc = new JFileChooser();
         int code = jfc.showSaveDialog(frame);
         if(code == JFileChooser.APPROVE_OPTION) {

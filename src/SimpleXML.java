@@ -112,7 +112,7 @@ import java.util.List;
          * @param search Nom dels nodes que volem cercar
          * @return Llista d'elements fills, filtrat per nom
          */
-        public List<Element> getChildElements(Element parent, String search) {
+        private List<Element> getChildElements(Element parent, String search) {
             return getElements(parent.getElementsByTagName(search));
         }
 

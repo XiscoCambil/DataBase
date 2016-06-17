@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ConsultarProveedor extends JDialog {
     private JPanel contentPane;
@@ -36,30 +37,30 @@ public class ConsultarProveedor extends JDialog {
     private JComboBox comboBox5;
     private JButton eliminarButton;
     private JButton exportarConsultaButton;
-    private DefaultTableModel dtm;
+    private final DefaultTableModel dtm;
 
-    List<String> localidades = Programa.db.ObtenerNombreLocalidades();
-    List<String> nombres;
+    private final List<String> localidades = Programa.db.ObtenerNombreLocalidades();
+    private List<String> nombres;
 
-    String nombreN = "";
-    String cifN = "";
-    String localidadN = "";
-    String activoN = "";
-    String telefonN = "";
-    String calleN = "";
-    String nportalN = "";
-    String llportalN = "";
-    String plletraN = "";
-    String codigo_postalN = "";
-    String tipus_adreçaN = "";
+    private String nombreN = "";
+    private String cifN = "";
+    private String localidadN = "";
+    private String activoN = "";
+    private String telefonN = "";
+    private String calleN = "";
+    private String nportalN = "";
+    private String llportalN = "";
+    private String plletraN = "";
+    private String codigo_postalN = "";
+    private String tipus_adreçaN = "";
 
-    int id_proveidor;
-    int id_adreca;
-    String nombre = "";
-    String cif = "";
-    String localidad = "";
-    String activo = "";
-    String telefon = "";
+    private int id_proveidor;
+    private int id_adreca;
+    private String nombre = "";
+    private String cif = "";
+    private String localidad = "";
+    private String activo = "";
+    private String telefon = "";
 
 
 
@@ -120,7 +121,7 @@ public class ConsultarProveedor extends JDialog {
                     JOptionPane.showMessageDialog(null, "No hay registro seleccionado");
                 } else {
                     ObtenerValoresNuevosCamposModificar();
-                    if (tipus_adreçaN == "..." || localidadN == "..." || activoN == "...") {
+                    if (Objects.equals(tipus_adreçaN, "...") || Objects.equals(localidadN, "...") || Objects.equals(activoN, "...")) {
                         JOptionPane.showMessageDialog(null, "Seleccione un valor en todos los desplegables");
                     } else {
                         Adreça a;
@@ -185,7 +186,7 @@ public class ConsultarProveedor extends JDialog {
         activo = (String) comboBox2.getSelectedItem();
     }
 
-    private void CreateComboLocalitat(JComboBox comboBox) throws SQLException {
+    private void CreateComboLocalitat(JComboBox comboBox) {
         DefaultComboBoxModel dcb = new DefaultComboBoxModel();
         dcb.addElement("...");
         for (String localidad : localidades) {

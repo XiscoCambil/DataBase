@@ -12,12 +12,10 @@ import java.util.Properties;
  * Created by fjcambilr on 13/06/16.
  */
 public class DataBase {
-    private String username;
-    private String password;
-    private String server;
+    private final String username;
+    private final String password;
+    private final String server;
     private Connection c;
-    private String dbClassName = "com.mysql.jdbc.Driver";
-    private String sql;
 
     public DataBase(String server, String username, String password) throws Exception {
         this.username = username;
@@ -27,8 +25,9 @@ public class DataBase {
         PanelPrincipal pp = new PanelPrincipal();
     }
 
-    private void ConexionBBDD() throws ClassNotFoundException, SQLException {
+    private void ConexionBBDD() {
         try {
+            String dbClassName = "com.mysql.jdbc.Driver";
             Class.forName(dbClassName);
             // Properties for user and password. Here the user and password are both 'paulr'
             Properties p = new Properties();
@@ -38,7 +37,7 @@ public class DataBase {
             // Now try to connect
             c = DriverManager.getConnection(CONNECTION, p);
         } catch (Exception e) {
-            System.out.println(e);
+            JOptionPane.showMessageDialog(null,"Error en la conexion");
         }
     }
 
@@ -50,7 +49,7 @@ public class DataBase {
     }
 
 
-    public int ObtenerIdAdreca() throws SQLException {
+    private int ObtenerIdAdreca() throws SQLException {
         //Obtenemos los datos para insertar en la tabala ADRECA
         String ConsultaMaxAdreca = "SELECT MAX(id_adreca)+1 as adreca FROM ADRECA";
         PreparedStatement prs3 = c.prepareStatement(ConsultaMaxAdreca);
@@ -122,8 +121,7 @@ public class DataBase {
         // execute select SQL stetement
         ResultSet rs = preparedStatement.executeQuery();
         rs.next();
-        int max = rs.getInt("count");
-        return max;
+        return rs.getInt("count");
 
     }
 
@@ -191,7 +189,7 @@ public class DataBase {
 
     public ResultSet ConsultaProveidor(Proveidor p) throws SQLException {
         List<String> valores = new ArrayList<>();
-        sql = "";
+        String sql = "";
         if (!p.getNombre().isEmpty()) {
             valores.add("p.nom");
             valores.add(p.getNombre());
@@ -228,16 +226,14 @@ public class DataBase {
         for (int i = 1, x = 1; i < valores.size(); i += 2, x++) {
             ps.setString(x, valores.get(i));
         }
-        ResultSet rs = ps.executeQuery();
-        return rs;
+        return ps.executeQuery();
     }
 
     public ResultSet ObtenerValoresRellenarCampos(Proveidor p) throws SQLException {
         String sql = "SELECT p.id_proveidor,p.nom,p.telefon,p.CIF,p.activo,a.id_adreca,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio,t.abreviatura FROM((PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat)INNER JOIN TIPUS_ADRECA AS t ON t.id_tipus_adreca = a.id_tipus_adreca  WHERE CIF=? ";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setString(1, p.getCif());
-        ResultSet rs = ps.executeQuery();
-        return rs;
+        return ps.executeQuery();
     }
 
     public void ModificarProveedor(Proveidor p) throws SQLException {
@@ -304,7 +300,7 @@ public class DataBase {
 }
 
 class TipusCarrer {
-    public int id_tipus_adreça;
+    private final int id_tipus_adreça;
 
     public TipusCarrer(int id_tipus_adreça, String descripcio, String abrev) {
         this.id_tipus_adreça = id_tipus_adreça;
@@ -312,19 +308,19 @@ class TipusCarrer {
         this.abrev = abrev;
     }
 
-    public String descripcio;
-    public String abrev;
+    private final String descripcio;
+    public final String abrev;
 
 }
 
 class Proveidor {
 
-    public int id_proveidor;
-    public String nombre;
-    public String telefon;
-    public String cif;
-    public String activo;
-    public String localidad;
+    private int id_proveidor;
+    private String nombre;
+    private String telefon;
+    private String cif;
+    private String activo;
+    private String localidad;
     public Adreça adreça;
 
     public Proveidor(String nombre, String telefon, String cif, String activo, Adreça adreça) {
@@ -400,16 +396,16 @@ class Programa {
 
 class Adreça {
 
-    public int id_Adreça;
-    public String carrer = "";
-    public String nPortal = "";
-    public String lletraPortal = "";
-    public String PisoYLetra = "";
-    public String codigoPostal = "";
+    private int id_Adreça;
+    private String carrer = "";
+    private String nPortal = "";
+    private String lletraPortal = "";
+    private String PisoYLetra = "";
+    private String codigoPostal = "";
     public String localidad = "";
     public String tipo_de_via = "";
-    public int tipo_Via;
-    public int id_localidad;
+    private int tipo_Via;
+    private int id_localidad;
 
 
     public Adreça(String carrer, int id_localidad, String codigoPostal, String pisoYLetra, String lletraPortal, String nPortal, int Tipo_via) {
