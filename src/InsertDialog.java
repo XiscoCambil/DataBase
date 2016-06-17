@@ -36,6 +36,7 @@ public class InsertDialog extends JDialog {
         super(parent);
         setLocationRelativeTo(parent);
         setContentPane(contentPane);
+        setTitle("Insertar Proveedor");
         setModal(true);
         CreateComboLocalitat(comboBox1);
         CreateComboTipoCarrer(comboBox2);
@@ -60,8 +61,7 @@ public class InsertDialog extends JDialog {
                         JOptionPane.showMessageDialog(null, "Proveedor insertado correctamente");
                         dispose();
                     } catch (SQLException e) {
-                        e.printStackTrace();
-                        //JOptionPane.showMessageDialog(null, "ha habido un error en la inserccion");
+                        JOptionPane.showMessageDialog(null, "ha habido un error en la inserccion");
                     }
                 }
             }

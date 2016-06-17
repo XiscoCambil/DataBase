@@ -17,6 +17,7 @@ public class DataBase {
     private final String server;
     private Connection c;
 
+    //Constructor DataBase
     public DataBase(String server, String username, String password) throws Exception {
         this.username = username;
         this.password = password;
@@ -25,6 +26,7 @@ public class DataBase {
         PanelPrincipal pp = new PanelPrincipal();
     }
 
+    //Metodos Conexion a la Base de Datos
     private void ConexionBBDD() {
         try {
             String dbClassName = "com.mysql.jdbc.Driver";
@@ -41,6 +43,7 @@ public class DataBase {
         }
     }
 
+    //Metodo InsertarProveedor llamado una vez que se aprieta el botn de insertar y se rellenan los datos
     public void InsertarProveidor(Adreça adreça, Proveidor proveidor) throws SQLException {
         int id_adreça = ObtenerIdAdreca();
         adreça.setId_Adreça(id_adreça);
@@ -48,41 +51,9 @@ public class DataBase {
         InsertPro(proveidor);
     }
 
-
-    private int ObtenerIdAdreca() throws SQLException {
-        //Obtenemos los datos para insertar en la tabala ADRECA
-        String ConsultaMaxAdreca = "SELECT MAX(id_adreca)+1 as adreca FROM ADRECA";
-        PreparedStatement prs3 = c.prepareStatement(ConsultaMaxAdreca);
-        ResultSet rs3 = prs3.executeQuery();
-        rs3.next();
-        return rs3.getInt("adreca");
-    }
-
-    public int ObtenerIdLocalidad(String localidad) throws SQLException {
-        //Obtenemos el idetificador de la localidad.
-        String consultaidLocalida = "SELECT id_localitat FROM LOCALITAT WHERE descripcio=?";
-        PreparedStatement ps2 = c.prepareStatement(consultaidLocalida);
-        ps2.setString(1, localidad);
-        ResultSet rs2 = ps2.executeQuery();
-        rs2.next();
-        return rs2.getInt("id_localitat");
-
-    }
-
-    public int ObtenerIdTipoVia(String abreviatura) throws SQLException {
-        //Obtenemos el idetificador de la localidad.
-        String consultaAbreviatura = "SELECT id_tipus_adreca FROM TIPUS_ADRECA WHERE abreviatura=?";
-        PreparedStatement ps2 = c.prepareStatement(consultaAbreviatura);
-        ps2.setString(1, abreviatura);
-        ResultSet rs2 = ps2.executeQuery();
-        rs2.next();
-        return rs2.getInt("id_tipus_adreca");
-
-    }
-
+    //Metodo para la inserccion de la direccion del proveedor
     private void InsertAdr(Adreça adreça) {
         try {
-            //Hacemos el insert dentro de ADRECA.
             String InsertAdreca = "INSERT INTO ADRECA VALUES(?,?,?,?,?,?,?,?)";
             PreparedStatement inAdreca = c.prepareStatement(InsertAdreca);
             inAdreca.setInt(1, adreça.getId_Adreça());
@@ -99,8 +70,8 @@ public class DataBase {
         }
     }
 
+    //Metodo para la insercion de los datos del proveedor
     private void InsertPro(Proveidor proveidor) {
-        //Hacemos el insert dentro de ADRECA.
         try {
             String InsertProveedor = "INSERT INTO PROVEIDOR (nom,id_adreça,telefon,CIF,activo) VALUES(?,?,?,?,?)";
             PreparedStatement inProveidor = c.prepareStatement(InsertProveedor);
@@ -115,6 +86,41 @@ public class DataBase {
         }
     }
 
+    //Metodo para obtener la nueva id_adreca
+    private int ObtenerIdAdreca() throws SQLException {
+        //Obtenemos los datos para insertar en la tabala ADRECA
+        String ConsultaMaxAdreca = "SELECT MAX(id_adreca)+1 as adreca FROM ADRECA";
+        PreparedStatement prs3 = c.prepareStatement(ConsultaMaxAdreca);
+        ResultSet rs3 = prs3.executeQuery();
+        rs3.next();
+        return rs3.getInt("adreca");
+    }
+
+    //Metodo utilizado para obtener la id de la locadiad a partir de su nombre
+    public int ObtenerIdLocalidad(String localidad) throws SQLException {
+        String consultaidLocalida = "SELECT id_localitat FROM LOCALITAT WHERE descripcio=?";
+        PreparedStatement ps2 = c.prepareStatement(consultaidLocalida);
+        ps2.setString(1, localidad);
+        ResultSet rs2 = ps2.executeQuery();
+        rs2.next();
+        return rs2.getInt("id_localitat");
+
+    }
+
+    //Metodo utilizado para obtener la id del tipo_de_via a partir de la abreviatura.
+    public int ObtenerIdTipoVia(String abreviatura) throws SQLException {
+        //Obtenemos el idetificador de la localidad.
+        String consultaAbreviatura = "SELECT id_tipus_adreca FROM TIPUS_ADRECA WHERE abreviatura=?";
+        PreparedStatement ps2 = c.prepareStatement(consultaAbreviatura);
+        ps2.setString(1, abreviatura);
+        ResultSet rs2 = ps2.executeQuery();
+        rs2.next();
+        return rs2.getInt("id_tipus_adreca");
+
+    }
+
+
+    //Metodo para obtener el numero total del proveedores.
     public int maxCodiProveidor() throws ClassNotFoundException, SQLException {
         String sql = "select count(*) as count from PROVEIDOR";
         PreparedStatement preparedStatement = c.prepareStatement(sql);
@@ -125,11 +131,11 @@ public class DataBase {
 
     }
 
+    //Metodo para Obtener los nombres de las localidades para los combobox
     public List<String> ObtenerNombreLocalidades() throws SQLException {
         List<String> localidades = new ArrayList<>();
         String sql = "select * from LOCALITAT";
         PreparedStatement preparedStatement = c.prepareStatement(sql);
-        // execute select SQL stetement
         ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
             localidades.add(rs.getString("descripcio"));
@@ -137,6 +143,7 @@ public class DataBase {
         return localidades;
     }
 
+    //Metodo para obtener las abreviaturas los tipos de carreteras para los combobox
     public List<TipusCarrer> ObtenerNombreTipusCarrer() throws SQLException {
         List<TipusCarrer> tipusCarrers = new ArrayList<>();
         String sql = "select * from TIPUS_ADRECA";
@@ -149,6 +156,7 @@ public class DataBase {
         return tipusCarrers;
     }
 
+    //Metodo empleado para crear la consulta de todos los registros de la tablas PROVEDOR Y ADRECA
     public List<Proveidor> ObtenerDump() throws SQLException {
        String sql = "SELECT * FROM ((ADRECA as a INNER JOIN PROVEIDOR as p ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat)INNER JOIN TIPUS_ADRECA as t ON t.id_tipus_adreca = a.id_tipus_adreca ";
         PreparedStatement ps = c.prepareStatement(sql);
@@ -163,6 +171,7 @@ public class DataBase {
         return proveedores;
    }
 
+    //Metodo empleado para obtener la consulta de la cual se quiere hacer un XML
     public List<Proveidor> ObtenerXmlConsulta(List<String> nombres) throws SQLException {
         String sql = "SELECT * FROM ((ADRECA as a INNER JOIN PROVEIDOR as p ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat)INNER JOIN TIPUS_ADRECA as t ON t.id_tipus_adreca = a.id_tipus_adreca WHERE ";
         for (int i = 0; i < nombres.size(); i++) {
@@ -187,6 +196,7 @@ public class DataBase {
         return proveedores;
     }
 
+    //Metodo utilizado para obtener la consulta de los proveedores a partir de los datos introducidos por el usuario
     public ResultSet ConsultaProveidor(Proveidor p) throws SQLException {
         List<String> valores = new ArrayList<>();
         String sql = "";
@@ -229,6 +239,7 @@ public class DataBase {
         return ps.executeQuery();
     }
 
+    //Metodo para obtener los valores que con los que se llenaran los campos de modificar del registro seleccionado
     public ResultSet ObtenerValoresRellenarCampos(Proveidor p) throws SQLException {
         String sql = "SELECT p.id_proveidor,p.nom,p.telefon,p.CIF,p.activo,a.id_adreca,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio,t.abreviatura FROM((PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat)INNER JOIN TIPUS_ADRECA AS t ON t.id_tipus_adreca = a.id_tipus_adreca  WHERE CIF=? ";
         PreparedStatement ps = c.prepareStatement(sql);
@@ -236,11 +247,13 @@ public class DataBase {
         return ps.executeQuery();
     }
 
+    //Metodo llamado una vez se aprieta el boton de modificar del dilogo de ConsultaProveedor
     public void ModificarProveedor(Proveidor p) throws SQLException {
         UpdateAdreca(p);
         UpdateProveidor(p);
     }
 
+    //Metodo llamada una vez se aprieta el boton de eliminar del dialogo de ConsultaProveedor
     public void EliminarProveedor(Proveidor p) throws SQLException {
         String sql = "UPDATE PROVEIDOR SET activo='n' WHERE CIF=?";
         PreparedStatement ps = c.prepareStatement(sql);
@@ -248,6 +261,7 @@ public class DataBase {
         ps.execute();
     }
 
+    //Metodo utilizado para la actualizacion de los datos de la direccion del proveedor
     private void UpdateAdreca(Proveidor p) throws SQLException {
         String sql = "UPDATE ADRECA SET id_localitat=?,descripcio=?,numero=?,porta=?,pis=?,codi_postal=?,id_tipus_adreca=? WHERE id_adreca=?";
         PreparedStatement ps = c.prepareStatement(sql);
@@ -262,6 +276,7 @@ public class DataBase {
         ps.execute();
     }
 
+    //Metodo utilizado para la actualizacion de los datos del proveedor
     private void UpdateProveidor(Proveidor p) throws SQLException {
         String sql = "UPDATE PROVEIDOR SET nom=?,telefon=?,CIF=?,activo=? WHERE id_proveidor=?";
         PreparedStatement ps = c.prepareStatement(sql);
@@ -273,6 +288,7 @@ public class DataBase {
         ps.execute();
     }
 
+    //Metodo llamado cuando se aprieta el boton de InsertarXML
     public void InsertarXML(String sql, String sql2,List<Adreça> direcciones,List<Proveidor> proveidors) throws SQLException {
         for (int i = 0; i < direcciones.size(); i++) {
             PreparedStatement ps = c.prepareStatement(sql);
@@ -299,20 +315,23 @@ public class DataBase {
 
 }
 
+//Clase Tipus Carrer
 class TipusCarrer {
+
+    private final String descripcio;
+    public final String abrev;
     private final int id_tipus_adreça;
 
+    //Constructor de TipusCarrer
     public TipusCarrer(int id_tipus_adreça, String descripcio, String abrev) {
         this.id_tipus_adreça = id_tipus_adreça;
         this.descripcio = descripcio;
         this.abrev = abrev;
     }
 
-    private final String descripcio;
-    public final String abrev;
-
 }
 
+//Clase proveidro
 class Proveidor {
 
     private int id_proveidor;
@@ -323,6 +342,7 @@ class Proveidor {
     private String localidad;
     public Adreça adreça;
 
+    //Constructor
     public Proveidor(String nombre, String telefon, String cif, String activo, Adreça adreça) {
         this.nombre = nombre;
         this.telefon = telefon;
@@ -380,16 +400,16 @@ class Programa {
     static DataBase db;
 
     public static void main(String[] args) throws Exception {
-//        String username;
-//        String password;
-//        String server;
-//        SimpleXML configXml = new SimpleXML(new FileInputStream("src/xml/config.xml"));
-//        Document doc = configXml.getDoc();
-//        Element raiz = doc.getDocumentElement();
-//        username = configXml.getElement(raiz,"usuario").getTextContent();
-//        password = configXml.getElement(raiz,"password").getTextContent();
-//        server = configXml.getElement(raiz,"server").getTextContent();
-         db = new DataBase("192.168.1.19","root","terremoto11");
+        String username;
+        String password;
+        String server;
+        SimpleXML configXml = new SimpleXML(new FileInputStream("src/config.xml"));
+        Document doc = configXml.getDoc();
+        Element raiz = doc.getDocumentElement();
+        username = configXml.getElement(raiz,"usuario").getTextContent();
+        password = configXml.getElement(raiz,"password").getTextContent();
+        server = configXml.getElement(raiz,"server").getTextContent();
+         db = new DataBase(server,username,password);
 
     }
 }
@@ -402,8 +422,6 @@ class Adreça {
     private String lletraPortal = "";
     private String PisoYLetra = "";
     private String codigoPostal = "";
-    public String localidad = "";
-    public String tipo_de_via = "";
     private int tipo_Via;
     private int id_localidad;
 
@@ -418,11 +436,6 @@ class Adreça {
         this.tipo_Via = Tipo_via;
 
 }
-
-
-    public void setTipo_Via(int tipo_Via) {
-        this.tipo_Via = tipo_Via;
-    }
 
     public String getCarrer() {
         return carrer;

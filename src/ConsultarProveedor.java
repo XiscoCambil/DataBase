@@ -68,6 +68,7 @@ public class ConsultarProveedor extends JDialog {
         super(parent);
         setLocationRelativeTo(parent);
         setContentPane(contentPane);
+        setTitle("Consultas,Modificaciones y Eliminaciones");
         setModal(true);
         exportarConsultaButton.setEnabled(false);
         dtm = new DefaultTableModel();
