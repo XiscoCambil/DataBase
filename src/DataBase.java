@@ -376,7 +376,7 @@ class Programa {
 //        username = configXml.getElement(raiz,"usuario").getTextContent();
 //        password = configXml.getElement(raiz,"password").getTextContent();
 //        server = configXml.getElement(raiz,"server").getTextContent();
-         db = new DataBase("192.168.1.14","root","terremoto11");
+         db = new DataBase("192.168.1.15","root","terremoto11");
 
     }
 }

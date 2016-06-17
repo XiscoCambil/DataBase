@@ -84,32 +84,32 @@ public class PanelPrincipal {
                 }
             }
         });
-        importarBaseDeDatosButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser jfc = new JFileChooser();
-                int code = jfc.showOpenDialog(frame);
-                jfc.getFileFilter();
-                if(code == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        SimpleXML importXml = new SimpleXML(new FileInputStream("src/xml/config.xml"));
-                        Document doc = importXml.getDoc();
-                        Element proveidor = doc.getDocumentElement();
-
-
-                    } catch (ParserConfigurationException e1) {
-                        e1.printStackTrace();
-                    } catch (FileNotFoundException e1) {
-                        e1.printStackTrace();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    } catch (SAXException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-
-            }
-        });
+//        importarBaseDeDatosButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                JFileChooser jfc = new JFileChooser();
+//                int code = jfc.showOpenDialog(frame);
+//                jfc.getFileFilter();
+//                if(code == JFileChooser.APPROVE_OPTION) {
+//                    try {
+//                        SimpleXML importXml = new SimpleXML(new FileInputStream("src/xml/config.xml"));
+//                        Document doc = importXml.getDoc();
+//                        Element proveidor = doc.getDocumentElement();
+//
+//
+//                    } catch (ParserConfigurationException e1) {
+//                        e1.printStackTrace();
+//                    } catch (FileNotFoundException e1) {
+//                        e1.printStackTrace();
+//                    } catch (IOException e1) {
+//                        e1.printStackTrace();
+//                    } catch (SAXException e1) {
+//                        e1.printStackTrace();
+//                    }
+//                }
+//
+//            }
+//        });
     }
 
     private static void XMLproveidor(Document doc, Element proveidor, Proveidor p){

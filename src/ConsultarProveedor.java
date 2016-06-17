@@ -64,6 +64,8 @@ public class ConsultarProveedor extends JDialog {
 
 
     public ConsultarProveedor(JFrame parent) throws SQLException {
+        super(parent);
+        setLocationRelativeTo(parent);
         setContentPane(contentPane);
         setModal(true);
         exportarConsultaButton.setEnabled(false);
