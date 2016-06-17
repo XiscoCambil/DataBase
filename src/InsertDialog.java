@@ -53,14 +53,15 @@ public class InsertDialog extends JDialog {
                 if(nombre.isEmpty() || telefon.isEmpty() || cif.isEmpty() || carrer.isEmpty() || localidad.isEmpty() || tipus_carrer.isEmpty() || codigoPostal.isEmpty()){
                     JOptionPane.showMessageDialog(null,"Faltan campos obligatorios por rellenar");
                 }else {
-                    Adreça adreça = new Adreça(carrer, localidad, codigoPostal, PisoYLetra, lletraPortal, nPortal,tipus_carrer);
-                    Proveidor proveidor = new Proveidor(nombre, telefon, cif, "s", adreça);
                     try {
+                        Adreça adreça = new Adreça(carrer,Programa.db.ObtenerIdLocalidad(localidad), codigoPostal, PisoYLetra, lletraPortal, nPortal,Programa.db.ObtenerIdLocalidad(tipus_carrer));
+                        Proveidor proveidor = new Proveidor(nombre, telefon, cif, "s", adreça);
                         Programa.db.InsertarProveidor(adreça, proveidor);
                         JOptionPane.showMessageDialog(null, "Proveedor insertado correctamente");
                         dispose();
                     } catch (SQLException e) {
-                        JOptionPane.showMessageDialog(null, "ha habido un error en la inserccion");
+                        e.printStackTrace();
+                        //JOptionPane.showMessageDialog(null, "ha habido un error en la inserccion");
                     }
                 }
             }

@@ -9,7 +9,9 @@ import javax.xml.transform.TransformerException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -84,32 +86,58 @@ public class PanelPrincipal {
                 }
             }
         });
-//        importarBaseDeDatosButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                JFileChooser jfc = new JFileChooser();
-//                int code = jfc.showOpenDialog(frame);
-//                jfc.getFileFilter();
-//                if(code == JFileChooser.APPROVE_OPTION) {
-//                    try {
-//                        SimpleXML importXml = new SimpleXML(new FileInputStream("src/xml/config.xml"));
-//                        Document doc = importXml.getDoc();
-//                        Element proveidor = doc.getDocumentElement();
-//
-//
-//                    } catch (ParserConfigurationException e1) {
-//                        e1.printStackTrace();
-//                    } catch (FileNotFoundException e1) {
-//                        e1.printStackTrace();
-//                    } catch (IOException e1) {
-//                        e1.printStackTrace();
-//                    } catch (SAXException e1) {
-//                        e1.printStackTrace();
-//                    }
-//                }
-//
-//            }
-//        });
+        importarBaseDeDatosButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jfc = new JFileChooser();
+                int code = jfc.showOpenDialog(frame);
+                jfc.getFileFilter();
+                if(code == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        SimpleXML importXml = new SimpleXML(new FileInputStream(jfc.getSelectedFile().getPath()));
+                        Document doc = importXml.getDoc();
+                        Element raiz = doc.getDocumentElement();
+                        List<Element> list = importXml.getChildElements(raiz);
+                        List<Proveidor> proveidors = new ArrayList<Proveidor>();
+                        List<Adreça> direcciones = new ArrayList<Adreça>();
+                        for (Element element : list) {
+                            String nom = importXml.getElement(element, "nom").getTextContent();
+                            int id_adreca = Integer.parseInt(importXml.getElement(element, "id_adreca").getTextContent());
+                            String telefon = importXml.getElement(element, "telefon").getTextContent();
+                            String cif = importXml.getElement(element,"cif").getTextContent();
+                            String activo = importXml.getElement(element,"activo").getTextContent();
+                            int id_tipus_adreca = Integer.parseInt(importXml.getElement(element,"id_tipus_adreca").getTextContent());
+                            int id_localitat = Integer.parseInt(importXml.getElement(element,"id_localitat").getTextContent());
+                            String carrer = importXml.getElement(element,"carrer").getTextContent();
+                            String numero_portal = importXml.getElement(element,"numero_portal").getTextContent();
+                            String lletra_portal = importXml.getElement(element,"lletra_portal").getTextContent();
+                            String piso = importXml.getElement(element,"piso").getTextContent();
+                            String codi_postal = importXml.getElement(element,"codi_postal").getTextContent();
+                            Adreça a = new Adreça(carrer,id_localitat,codi_postal,piso,lletra_portal,numero_portal,id_tipus_adreca);
+                            a.setId_Adreça(id_adreca);
+                            direcciones.add(a);
+                            Proveidor p = new Proveidor(nom,telefon,cif,activo,a);
+                            proveidors.add(p);
+                        }
+                        String insertSqlAdreca = "INSERT INTO ADRECA(id_adreca,id_tipus_adreca,id_localitat,descripcio,numero,porta,pis,codi_postal)VALUES(?,?,?,?,?,?,?,?)";
+                        String InsertSqlProveidor = "INSERT INTO PROVEIDOR(nom,id_adreça,telefon,CIF,activo)VALUES(?,?,?,?,?)";
+                        Programa.db.InsertarXML(insertSqlAdreca,InsertSqlProveidor,direcciones, proveidors);
+                        JOptionPane.showMessageDialog(null,"Inportacion realizada con exito");
+
+                    } catch (SAXException e1) {
+                        e1.printStackTrace();
+                    } catch (FileNotFoundException e1) {
+                        e1.printStackTrace();
+                    } catch (ParserConfigurationException e1) {
+                        e1.printStackTrace();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     private static void XMLproveidor(Document doc, Element proveidor, Proveidor p){
@@ -139,7 +167,7 @@ public class PanelPrincipal {
 
         Element id_tipus_adreca = doc.createElement("id_tipus_adreca");
         adreca.appendChild(id_tipus_adreca);
-        id_tipus_adreca.setTextContent(p.adreça.getTipo_de_via());
+        id_tipus_adreca.setTextContent(String.valueOf(p.adreça.getTipo_Via()));
 
         Element id_localitat = doc.createElement("id_localitat");
         adreca.appendChild(id_localitat);

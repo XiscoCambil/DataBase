@@ -123,7 +123,12 @@ public class ConsultarProveedor extends JDialog {
                     if (tipus_adreçaN == "..." || localidadN == "..." || activoN == "...") {
                         JOptionPane.showMessageDialog(null, "Seleccione un valor en todos los desplegables");
                     } else {
-                        Adreça a = new Adreça(calleN, localidadN, codigo_postalN, plletraN, llportalN, nportalN, tipus_adreçaN);
+                        Adreça a = null;
+                        try {
+                            a = new Adreça(calleN, Programa.db.ObtenerIdLocalidad(localidadN), codigo_postalN, plletraN, llportalN, nportalN, Programa.db.ObtenerIdLocalidad(tipus_adreçaN));
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                         a.setId_Adreça(id_adreca);
                         try {
                             a.setId_localidad(Programa.db.ObtenerIdLocalidad(localidadN));
@@ -230,7 +235,6 @@ public class ConsultarProveedor extends JDialog {
 
     private void CargarRegistros(Proveidor p) throws SQLException {
         ResultSet rs = Programa.db.ConsultaProveidor(p);
-
         if (rs.next()) {
             nombres = new ArrayList<String>();
             nombres.add(rs.getString("nom"));

@@ -44,9 +44,7 @@ public class DataBase {
 
     public void InsertarProveidor(Adreça adreça, Proveidor proveidor) throws SQLException {
         int id_adreça = ObtenerIdAdreca();
-        int id_localidad = ObtenerIdLocalidad(adreça.getLocalidad());
         adreça.setId_Adreça(id_adreça);
-        adreça.setId_localidad(id_localidad);
         InsertAdr(adreça);
         InsertPro(proveidor);
     }
@@ -159,10 +157,8 @@ public class DataBase {
         ResultSet rs = ps.executeQuery();
         List<Proveidor> proveedores = new ArrayList<>();
         while (rs.next()){
-            Adreça a = new Adreça(rs.getString("a.descripcio"),rs.getString("l.descripcio"),rs.getString("a.codi_postal"),rs.getString("a.pis"),rs.getString("a.porta"),rs.getString("a.numero"),rs.getString("t.abreviatura"));
-            a.setId_localidad(ObtenerIdLocalidad(a.getLocalidad()));
+            Adreça a = new Adreça(rs.getString("a.descripcio"),Programa.db.ObtenerIdLocalidad(rs.getString("l.descripcio")),rs.getString("a.codi_postal"),rs.getString("a.pis"),rs.getString("a.porta"),rs.getString("a.numero"),Programa.db.ObtenerIdTipoVia(rs.getString("t.abreviatura")));
             a.setId_Adreça(rs.getInt("a.id_adreca"));
-            a.setTipo_Via(ObtenerIdTipoVia(a.getTipo_de_via()));
             Proveidor p = new Proveidor(rs.getString("p.nom"),rs.getString("p.telefon"),rs.getString("p.CIF"),rs.getString("p.activo"),a);
             proveedores.add(p);
         }
@@ -185,10 +181,8 @@ public class DataBase {
         ResultSet rs = ps.executeQuery();
         List<Proveidor> proveedores = new ArrayList<>();
         while (rs.next()){
-            Adreça a = new Adreça(rs.getString("a.descripcio"),rs.getString("l.descripcio"),rs.getString("a.codi_postal"),rs.getString("a.pis"),rs.getString("a.porta"),rs.getString("a.numero"),rs.getString("t.abreviatura"));
-            a.setId_localidad(ObtenerIdLocalidad(a.getLocalidad()));
+            Adreça a = new Adreça(rs.getString("a.descripcio"),Programa.db.ObtenerIdLocalidad(rs.getString("l.descripcio")),rs.getString("a.codi_postal"),rs.getString("a.pis"),rs.getString("a.porta"),rs.getString("a.numero"),Programa.db.ObtenerIdTipoVia(rs.getString("t.abreviatura")));
             a.setId_Adreça(rs.getInt("a.id_adreca"));
-            a.setTipo_Via(ObtenerIdTipoVia(a.getTipo_de_via()));
             Proveidor p = new Proveidor(rs.getString("p.nom"),rs.getString("p.telefon"),rs.getString("p.CIF"),rs.getString("p.activo"),a);
             proveedores.add(p);
         }
@@ -259,8 +253,6 @@ public class DataBase {
     }
 
     private void UpdateAdreca(Proveidor p) throws SQLException {
-        p.adreça.setId_localidad(ObtenerIdLocalidad(p.adreça.getLocalidad()));
-        p.adreça.setTipo_Via(ObtenerIdTipoVia(p.adreça.getTipo_de_via()));
         String sql = "UPDATE ADRECA SET id_localitat=?,descripcio=?,numero=?,porta=?,pis=?,codi_postal=?,id_tipus_adreca=? WHERE id_adreca=?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, p.adreça.getId_localidad());
@@ -284,6 +276,31 @@ public class DataBase {
         ps.setInt(5, p.getId_proveidor());
         ps.execute();
     }
+
+    public void InsertarXML(String sql, String sql2,List<Adreça> direcciones,List<Proveidor> proveidors) throws SQLException {
+        for (int i = 0; i < direcciones.size(); i++) {
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1, direcciones.get(i).getId_Adreça());
+            ps.setInt(2, direcciones.get(i).getTipo_Via());
+            ps.setInt(3, direcciones.get(i).getId_localidad());
+            ps.setString(4, direcciones.get(i).getCarrer());
+            ps.setString(5, direcciones.get(i).getnPortal());
+            ps.setString(6, direcciones.get(i).getLletraPortal());
+            ps.setString(7, direcciones.get(i).getPisoYLetra());
+            ps.setString(8, direcciones.get(i).getCodigoPostal());
+            ps.execute();
+        }
+        for (int i = 0; i < proveidors.size() ; i++) {
+            PreparedStatement ps2 = c.prepareStatement(sql2);
+            ps2.setString(1, proveidors.get(i).getNombre());
+            ps2.setInt(2, proveidors.get(i).adreça.getId_Adreça());
+            ps2.setString(3, proveidors.get(i).getTelefon());
+            ps2.setString(4, proveidors.get(i).getCif());
+            ps2.setString(5, proveidors.get(i).getActivo());
+            ps2.execute();
+        }
+    }
+
 }
 
 class TipusCarrer {
@@ -376,7 +393,7 @@ class Programa {
 //        username = configXml.getElement(raiz,"usuario").getTextContent();
 //        password = configXml.getElement(raiz,"password").getTextContent();
 //        server = configXml.getElement(raiz,"server").getTextContent();
-         db = new DataBase("192.168.1.15","root","terremoto11");
+         db = new DataBase("192.168.1.21","root","terremoto11");
 
     }
 }
@@ -395,20 +412,17 @@ class Adreça {
     public int id_localidad;
 
 
-    public Adreça(String carrer, String localidad, String codigoPostal, String pisoYLetra, String lletraPortal, String nPortal, String tipo_de_via) {
+    public Adreça(String carrer, int id_localidad, String codigoPostal, String pisoYLetra, String lletraPortal, String nPortal, int Tipo_via) {
         this.carrer = carrer;
-        this.localidad = localidad;
+        this.id_localidad = id_localidad;
         this.codigoPostal = codigoPostal;
         this.PisoYLetra = pisoYLetra;
         this.lletraPortal = lletraPortal;
         this.nPortal = nPortal;
-        this.tipo_de_via = tipo_de_via;
+        this.tipo_Via = Tipo_via;
 
-    }
+}
 
-    public String getTipo_de_via() {
-        return tipo_de_via;
-    }
 
     public void setTipo_Via(int tipo_Via) {
         this.tipo_Via = tipo_Via;
@@ -446,9 +460,6 @@ class Adreça {
         return codigoPostal;
     }
 
-    public String getLocalidad() {
-        return localidad;
-    }
 
     public int getTipo_Via() {
         return tipo_Via;
