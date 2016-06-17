@@ -195,7 +195,6 @@ public class DataBase {
         return proveedores;
     }
 
-
     public ResultSet ConsultaProveidor(Proveidor p) throws SQLException {
         List<String> valores = new ArrayList<>();
         sql = "";
@@ -285,7 +284,6 @@ public class DataBase {
         ps.setInt(5, p.getId_proveidor());
         ps.execute();
     }
-
 }
 
 class TipusCarrer {
@@ -300,11 +298,9 @@ class TipusCarrer {
     public String descripcio;
     public String abrev;
 
-
 }
 
 class Proveidor {
-
 
     public int id_proveidor;
     public String nombre;
@@ -313,8 +309,6 @@ class Proveidor {
     public String activo;
     public String localidad;
     public Adreça adreça;
-
-
 
     public Proveidor(String nombre, String telefon, String cif, String activo, Adreça adreça) {
         this.nombre = nombre;
@@ -351,7 +345,6 @@ class Proveidor {
         this.localidad = localidad;
     }
 
-
     public String getCif() {
         return cif;
     }
@@ -385,7 +378,6 @@ class Programa {
 //        server = configXml.getElement(raiz,"server").getTextContent();
          db = new DataBase("192.168.1.14","root","terremoto11");
 
-
     }
 }
 
@@ -414,16 +406,9 @@ class Adreça {
 
     }
 
-    public Adreça(){
-
-    }
-
     public String getTipo_de_via() {
         return tipo_de_via;
     }
-
-
-
 
     public void setTipo_Via(int tipo_Via) {
         this.tipo_Via = tipo_Via;

@@ -1,13 +1,14 @@
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -86,6 +87,26 @@ public class PanelPrincipal {
         importarBaseDeDatosButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                JFileChooser jfc = new JFileChooser();
+                int code = jfc.showOpenDialog(frame);
+                jfc.getFileFilter();
+                if(code == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        SimpleXML importXml = new SimpleXML(new FileInputStream("src/xml/config.xml"));
+                        Document doc = importXml.getDoc();
+                        Element proveidor = doc.getDocumentElement();
+
+
+                    } catch (ParserConfigurationException e1) {
+                        e1.printStackTrace();
+                    } catch (FileNotFoundException e1) {
+                        e1.printStackTrace();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    } catch (SAXException e1) {
+                        e1.printStackTrace();
+                    }
+                }
 
             }
         });
