@@ -2,10 +2,14 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConsultarProveedor extends JDialog {
@@ -31,9 +35,11 @@ public class ConsultarProveedor extends JDialog {
     private JComboBox comboBox4;
     private JComboBox comboBox5;
     private JButton eliminarButton;
+    private JButton exportarConsultaButton;
     private DefaultTableModel dtm;
 
     List<String> localidades = Programa.db.ObtenerNombreLocalidades();
+    List<String> nombres;
 
     String nombreN = "";
     String cifN = "";
@@ -57,9 +63,10 @@ public class ConsultarProveedor extends JDialog {
 
 
 
-    public ConsultarProveedor() throws SQLException {
+    public ConsultarProveedor(JFrame parent) throws SQLException {
         setContentPane(contentPane);
         setModal(true);
+        exportarConsultaButton.setEnabled(false);
         dtm = new DefaultTableModel();
         dtm.addColumn("nom");
         dtm.addColumn("telefon");
@@ -87,15 +94,7 @@ public class ConsultarProveedor extends JDialog {
                 Proveidor p = new Proveidor(nombre, telefon, cif, activo);
                 p.setLocalidad(localidad);
                 try {
-                    ResultSet rs = Programa.db.ConsultaProveidor(p);
-                    if (rs.next()) {
-                        dtm.addRow(new String[]{rs.getString("nom"), rs.getString("telefon"), rs.getString("CIF"), rs.getString("descripcio"), rs.getString("activo")});
-                        while (rs.next()) {
-                            dtm.addRow(new String[]{rs.getString("nom"), rs.getString("telefon"), rs.getString("CIF"), rs.getString("descripcio"), rs.getString("activo")});
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(null, "No hay ningun registro que coincida");
-                    }
+                   CargarRegistros(p);
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
@@ -134,8 +133,14 @@ public class ConsultarProveedor extends JDialog {
                         try {
                             Programa.db.ModificarProveedor(p);
                             JOptionPane.showMessageDialog(null, "Modificacion realizada con exito");
+
+                            Proveidor p2 = new Proveidor(nombre,telefon,cif,activo);
+                            p2.setLocalidad(localidad);
+                            dtm.setRowCount(0);
+                            CargarRegistros(p2);
                         } catch (SQLException e) {
-                            JOptionPane.showMessageDialog(null, "Error en modificacion, se ha cancelado la accion");
+                            //JOptionPane.showMessageDialog(null, "Error en modificacion, se ha cancelado la accion");
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -154,6 +159,22 @@ public class ConsultarProveedor extends JDialog {
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
+                }
+            }
+        });
+        exportarConsultaButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                  PanelPrincipal.ExportarXML(Programa.db.ObtenerXmlConsulta(nombres));
+                } catch (ParserConfigurationException e1) {
+                    e1.printStackTrace();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                } catch (FileNotFoundException e1) {
+                    e1.printStackTrace();
+                } catch (TransformerException e1) {
+                    e1.printStackTrace();
                 }
             }
         });
@@ -203,6 +224,25 @@ public class ConsultarProveedor extends JDialog {
         }
         comboBox.setModel(dcb);
         comboBox.setVisible(true);
+    }
+
+    private void CargarRegistros(Proveidor p) throws SQLException {
+        ResultSet rs = Programa.db.ConsultaProveidor(p);
+
+        if (rs.next()) {
+            nombres = new ArrayList<String>();
+            nombres.add(rs.getString("nom"));
+            dtm.addRow(new String[]{rs.getString("nom"), rs.getString("telefon"), rs.getString("CIF"), rs.getString("descripcio"), rs.getString("activo")});
+            while (rs.next()) {
+                dtm.addRow(new String[]{rs.getString("nom"), rs.getString("telefon"), rs.getString("CIF"), rs.getString("descripcio"), rs.getString("activo")});
+            }
+            exportarConsultaButton.setEnabled(true);
+
+        }else {
+            JOptionPane.showMessageDialog(null, "No hay ningun registro que coincida");
+            exportarConsultaButton.setEnabled(false);
+        }
+
     }
 
     private void RellenarCampos(ResultSet rs) throws SQLException {

@@ -21,7 +21,7 @@ public class PanelPrincipal {
     private JPanel panel;
     private JButton exportarBaseDeDatosButton;
     private JButton importarBaseDeDatosButton;
-    private JFrame frame = new JFrame("Proveedor");
+    private static JFrame frame = new JFrame("Proveedor");
 
     public PanelPrincipal() {
         frame.setContentPane(panel);
@@ -58,12 +58,11 @@ public class PanelPrincipal {
             public void actionPerformed(ActionEvent actionEvent) {
                 ConsultarProveedor cp = null;
                 try {
-                    cp = new ConsultarProveedor();
+                    cp = new ConsultarProveedor(frame);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
                 cp.pack();
-                ;
                 cp.setVisible(true);
             }
         });
@@ -71,25 +70,8 @@ public class PanelPrincipal {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    SimpleXML dumpXml = new SimpleXML();
-                    Document doc = dumpXml.getDoc();
-                    Element arrel = doc.createElement("data");
-                    doc.appendChild(arrel);
                     List<Proveidor> proveedores = Programa.db.ObtenerDump();
-                    for(Proveidor p : proveedores){
-
-                        Element proveidor =  doc.createElement("proveidor");
-                        arrel.appendChild(proveidor);
-
-                        XMLproveidor(doc,proveidor,p);
-
-                        Element adreca = doc.createElement("adreça");
-                        proveidor.appendChild(adreca);
-
-                        XMLadreca(doc,adreca,p);
-                    }
-                    dumpXml.write(new FileOutputStream("src/xml/dump.xml"));
-                    JOptionPane.showMessageDialog(null,"Dump realizado con exito, ubicacion: src/xml/dump.xml");
+                   ExportarXML(proveedores);
                 } catch (ParserConfigurationException e) {
                     e.printStackTrace();
                 } catch (FileNotFoundException e) {
@@ -101,9 +83,15 @@ public class PanelPrincipal {
                 }
             }
         });
+        importarBaseDeDatosButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
     }
 
-    private void XMLproveidor(Document doc,Element proveidor, Proveidor p){
+    private static void XMLproveidor(Document doc, Element proveidor, Proveidor p){
 
         Element nom = doc.createElement("nom");
         proveidor.appendChild(nom);
@@ -115,7 +103,7 @@ public class PanelPrincipal {
 
         Element telefon = doc.createElement("telefon");
         proveidor.appendChild(telefon);
-        telefon.setTextContent(p.getNombre());
+        telefon.setTextContent(p.getTelefon());
 
         Element cif = doc.createElement("cif");
         proveidor.appendChild(cif);
@@ -126,7 +114,7 @@ public class PanelPrincipal {
         activo.setTextContent(p.getActivo());
     }
 
-    private void XMLadreca(Document doc,Element adreca, Proveidor p){
+    private static void XMLadreca(Document doc, Element adreca, Proveidor p){
 
         Element id_tipus_adreca = doc.createElement("id_tipus_adreca");
         adreca.appendChild(id_tipus_adreca);
@@ -155,5 +143,38 @@ public class PanelPrincipal {
         Element codiPostal = doc.createElement("codi_postal");
         adreca.appendChild(codiPostal);
         codiPostal.setTextContent(p.adreça.getCodigoPostal());
+    }
+
+    public static void ExportarXML(List<Proveidor> proveedores) throws ParserConfigurationException, SQLException, FileNotFoundException, TransformerException {
+        JFileChooser jfc = new JFileChooser();
+        int code = jfc.showSaveDialog(frame);
+        if(code == JFileChooser.APPROVE_OPTION) {
+
+        SimpleXML dumpXml = new SimpleXML();
+        Document doc = dumpXml.getDoc();
+        Element arrel = doc.createElement("data");
+        doc.appendChild(arrel);
+
+        for (Proveidor p : proveedores) {
+
+            Element proveidor = doc.createElement("proveidor");
+            arrel.appendChild(proveidor);
+
+            XMLproveidor(doc, proveidor, p);
+
+            Element adreca = doc.createElement("adreça");
+            proveidor.appendChild(adreca);
+
+            XMLadreca(doc, adreca, p);
+        }
+            String path = jfc.getSelectedFile().getPath();
+            if(!path.endsWith(".xml") ) {
+                dumpXml.write(new FileOutputStream(jfc.getSelectedFile().getPath()+".xml"));
+            }else{
+                dumpXml.write(new FileOutputStream(jfc.getSelectedFile().getPath()));
+            }
+
+        JOptionPane.showMessageDialog(null, "Exportacion realizada con exito");
+    }
     }
 }

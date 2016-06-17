@@ -17,6 +17,7 @@ public class DataBase {
     private String server;
     private Connection c;
     private String dbClassName = "com.mysql.jdbc.Driver";
+    private String sql;
 
     public DataBase(String server, String username, String password) throws Exception {
         this.username = username;
@@ -168,10 +169,36 @@ public class DataBase {
         return proveedores;
    }
 
+    public List<Proveidor> ObtenerXmlConsulta(List<String> nombres) throws SQLException {
+        String sql = "SELECT * FROM ((ADRECA as a INNER JOIN PROVEIDOR as p ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat)INNER JOIN TIPUS_ADRECA as t ON t.id_tipus_adreca = a.id_tipus_adreca WHERE ";
+        for (int i = 0; i < nombres.size(); i++) {
+            if(i == nombres.size()-1){
+                sql += "nom=? ";
+            }else{
+                sql+= "nom=? and ";
+            }
+        }
+        PreparedStatement ps = c.prepareStatement(sql);
+        for (int i = 0, x = 1; i < nombres.size(); i++, x++) {
+            ps.setString(x, nombres.get(i));
+        }
+        ResultSet rs = ps.executeQuery();
+        List<Proveidor> proveedores = new ArrayList<>();
+        while (rs.next()){
+            Adreça a = new Adreça(rs.getString("a.descripcio"),rs.getString("l.descripcio"),rs.getString("a.codi_postal"),rs.getString("a.pis"),rs.getString("a.porta"),rs.getString("a.numero"),rs.getString("t.abreviatura"));
+            a.setId_localidad(ObtenerIdLocalidad(a.getLocalidad()));
+            a.setId_Adreça(rs.getInt("a.id_adreca"));
+            a.setTipo_Via(ObtenerIdTipoVia(a.getTipo_de_via()));
+            Proveidor p = new Proveidor(rs.getString("p.nom"),rs.getString("p.telefon"),rs.getString("p.CIF"),rs.getString("p.activo"),a);
+            proveedores.add(p);
+        }
+        return proveedores;
+    }
+
 
     public ResultSet ConsultaProveidor(Proveidor p) throws SQLException {
         List<String> valores = new ArrayList<>();
-        String sql = "";
+        sql = "";
         if (!p.getNombre().isEmpty()) {
             valores.add("p.nom");
             valores.add(p.getNombre());
@@ -347,17 +374,17 @@ class Programa {
     static DataBase db;
 
     public static void main(String[] args) throws Exception {
-        String username;
-        String password;
-        String server;
-        SimpleXML configXml = new SimpleXML(new FileInputStream("src/xml/config.xml"));
-        Document doc = configXml.getDoc();
-        Element raiz = doc.getDocumentElement();
-        username = configXml.getElement(raiz,"usuario").getTextContent();
-        password = configXml.getElement(raiz,"password").getTextContent();
-        server = configXml.getElement(raiz,"server").getTextContent();
-         db = new DataBase(server,username,password);
-        PanelPrincipal pp = new PanelPrincipal();
+//        String username;
+//        String password;
+//        String server;
+//        SimpleXML configXml = new SimpleXML(new FileInputStream("src/xml/config.xml"));
+//        Document doc = configXml.getDoc();
+//        Element raiz = doc.getDocumentElement();
+//        username = configXml.getElement(raiz,"usuario").getTextContent();
+//        password = configXml.getElement(raiz,"password").getTextContent();
+//        server = configXml.getElement(raiz,"server").getTextContent();
+         db = new DataBase("192.168.1.14","root","terremoto11");
+
 
     }
 }
@@ -384,6 +411,10 @@ class Adreça {
         this.lletraPortal = lletraPortal;
         this.nPortal = nPortal;
         this.tipo_de_via = tipo_de_via;
+
+    }
+
+    public Adreça(){
 
     }
 
