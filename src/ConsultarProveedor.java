@@ -123,31 +123,21 @@ public class ConsultarProveedor extends JDialog {
                     if (tipus_adreçaN == "..." || localidadN == "..." || activoN == "...") {
                         JOptionPane.showMessageDialog(null, "Seleccione un valor en todos los desplegables");
                     } else {
-                        Adreça a = null;
+                        Adreça a;
                         try {
-                            a = new Adreça(calleN, Programa.db.ObtenerIdLocalidad(localidadN), codigo_postalN, plletraN, llportalN, nportalN, Programa.db.ObtenerIdLocalidad(tipus_adreçaN));
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                        a.setId_Adreça(id_adreca);
-                        try {
+                            a = new Adreça(calleN, Programa.db.ObtenerIdLocalidad(localidadN), codigo_postalN, plletraN, llportalN, nportalN, Programa.db.ObtenerIdTipoVia(tipus_adreçaN));
+                             a.setId_Adreça(id_adreca);
                             a.setId_localidad(Programa.db.ObtenerIdLocalidad(localidadN));
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                        Proveidor p = new Proveidor(nombreN, telefonN, cifN, activoN, a);
-                        p.setId_proveidor(id_proveidor);
-                        try {
+                             Proveidor p = new Proveidor(nombreN, telefonN, cifN, activoN, a);
+                              p.setId_proveidor(id_proveidor);
                             Programa.db.ModificarProveedor(p);
                             JOptionPane.showMessageDialog(null, "Modificacion realizada con exito");
-
                             Proveidor p2 = new Proveidor(nombre,telefon,cif,activo);
                             p2.setLocalidad(localidad);
                             dtm.setRowCount(0);
                             CargarRegistros(p2);
                         } catch (SQLException e) {
-                            //JOptionPane.showMessageDialog(null, "Error en modificacion, se ha cancelado la accion");
-                            e.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Error en modificacion, se ha cancelado la accion");
                         }
                     }
                 }

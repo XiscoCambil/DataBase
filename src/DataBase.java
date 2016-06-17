@@ -117,12 +117,12 @@ public class DataBase {
     }
 
     public int maxCodiProveidor() throws ClassNotFoundException, SQLException {
-        String sql = "select max(id_proveidor) as max from PROVEIDOR";
+        String sql = "select count(*) as count from PROVEIDOR";
         PreparedStatement preparedStatement = c.prepareStatement(sql);
         // execute select SQL stetement
         ResultSet rs = preparedStatement.executeQuery();
         rs.next();
-        int max = rs.getInt("max");
+        int max = rs.getInt("count");
         return max;
 
     }
@@ -393,7 +393,7 @@ class Programa {
 //        username = configXml.getElement(raiz,"usuario").getTextContent();
 //        password = configXml.getElement(raiz,"password").getTextContent();
 //        server = configXml.getElement(raiz,"server").getTextContent();
-         db = new DataBase("192.168.1.21","root","terremoto11");
+         db = new DataBase("192.168.1.19","root","terremoto11");
 
     }
 }
