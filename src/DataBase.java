@@ -39,7 +39,7 @@ public class DataBase {
             // Now try to connect
             c = DriverManager.getConnection(CONNECTION, p);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"Error en la conexion");
+            JOptionPane.showMessageDialog(null, "Error en la conexion");
         }
     }
 
@@ -158,27 +158,27 @@ public class DataBase {
 
     //Metodo empleado para crear la consulta de todos los registros de la tablas PROVEDOR Y ADRECA
     public List<Proveidor> ObtenerDump() throws SQLException {
-       String sql = "SELECT * FROM ((ADRECA as a INNER JOIN PROVEIDOR as p ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat)INNER JOIN TIPUS_ADRECA as t ON t.id_tipus_adreca = a.id_tipus_adreca ";
+        String sql = "SELECT * FROM ((ADRECA as a INNER JOIN PROVEIDOR as p ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat)INNER JOIN TIPUS_ADRECA as t ON t.id_tipus_adreca = a.id_tipus_adreca ";
         PreparedStatement ps = c.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
         List<Proveidor> proveedores = new ArrayList<>();
-        while (rs.next()){
-            Adreça a = new Adreça(rs.getString("a.descripcio"),Programa.db.ObtenerIdLocalidad(rs.getString("l.descripcio")),rs.getString("a.codi_postal"),rs.getString("a.pis"),rs.getString("a.porta"),rs.getString("a.numero"),Programa.db.ObtenerIdTipoVia(rs.getString("t.abreviatura")));
+        while (rs.next()) {
+            Adreça a = new Adreça(rs.getString("a.descripcio"), Programa.db.ObtenerIdLocalidad(rs.getString("l.descripcio")), rs.getString("a.codi_postal"), rs.getString("a.pis"), rs.getString("a.porta"), rs.getString("a.numero"), Programa.db.ObtenerIdTipoVia(rs.getString("t.abreviatura")));
             a.setId_Adreça(rs.getInt("a.id_adreca"));
-            Proveidor p = new Proveidor(rs.getString("p.nom"),rs.getString("p.telefon"),rs.getString("p.CIF"),rs.getString("p.activo"),a);
+            Proveidor p = new Proveidor(rs.getString("p.nom"), rs.getString("p.telefon"), rs.getString("p.CIF"), rs.getString("p.activo"), a);
             proveedores.add(p);
         }
         return proveedores;
-   }
+    }
 
     //Metodo empleado para obtener la consulta de la cual se quiere hacer un XML
     public List<Proveidor> ObtenerXmlConsulta(List<String> nombres) throws SQLException {
         String sql = "SELECT * FROM ((ADRECA as a INNER JOIN PROVEIDOR as p ON p.id_adreça = a.id_adreca) INNER JOIN LOCALITAT as l ON l.id_localitat = a.id_localitat)INNER JOIN TIPUS_ADRECA as t ON t.id_tipus_adreca = a.id_tipus_adreca WHERE ";
         for (int i = 0; i < nombres.size(); i++) {
-            if(i == nombres.size()-1){
+            if (i == nombres.size() - 1) {
                 sql += "nom=? ";
-            }else{
-                sql+= "nom=? and ";
+            } else {
+                sql += "nom=? and ";
             }
         }
         PreparedStatement ps = c.prepareStatement(sql);
@@ -187,10 +187,10 @@ public class DataBase {
         }
         ResultSet rs = ps.executeQuery();
         List<Proveidor> proveedores = new ArrayList<>();
-        while (rs.next()){
-            Adreça a = new Adreça(rs.getString("a.descripcio"),Programa.db.ObtenerIdLocalidad(rs.getString("l.descripcio")),rs.getString("a.codi_postal"),rs.getString("a.pis"),rs.getString("a.porta"),rs.getString("a.numero"),Programa.db.ObtenerIdTipoVia(rs.getString("t.abreviatura")));
+        while (rs.next()) {
+            Adreça a = new Adreça(rs.getString("a.descripcio"), Programa.db.ObtenerIdLocalidad(rs.getString("l.descripcio")), rs.getString("a.codi_postal"), rs.getString("a.pis"), rs.getString("a.porta"), rs.getString("a.numero"), Programa.db.ObtenerIdTipoVia(rs.getString("t.abreviatura")));
             a.setId_Adreça(rs.getInt("a.id_adreca"));
-            Proveidor p = new Proveidor(rs.getString("p.nom"),rs.getString("p.telefon"),rs.getString("p.CIF"),rs.getString("p.activo"),a);
+            Proveidor p = new Proveidor(rs.getString("p.nom"), rs.getString("p.telefon"), rs.getString("p.CIF"), rs.getString("p.activo"), a);
             proveedores.add(p);
         }
         return proveedores;
@@ -289,7 +289,7 @@ public class DataBase {
     }
 
     //Metodo llamado cuando se aprieta el boton de InsertarXML
-    public void InsertarXML(String sql, String sql2,List<Adreça> direcciones,List<Proveidor> proveidors) throws SQLException {
+    public void InsertarXML(String sql, String sql2, List<Adreça> direcciones, List<Proveidor> proveidors) throws SQLException {
         for (int i = 0; i < direcciones.size(); i++) {
             PreparedStatement ps = c.prepareStatement(sql);
             ps.setInt(1, direcciones.get(i).getId_Adreça());
@@ -302,7 +302,7 @@ public class DataBase {
             ps.setString(8, direcciones.get(i).getCodigoPostal());
             ps.execute();
         }
-        for (int i = 0; i < proveidors.size() ; i++) {
+        for (int i = 0; i < proveidors.size(); i++) {
             PreparedStatement ps2 = c.prepareStatement(sql2);
             ps2.setString(1, proveidors.get(i).getNombre());
             ps2.setInt(2, proveidors.get(i).adreça.getId_Adreça());
@@ -315,166 +315,9 @@ public class DataBase {
 
 }
 
-//Clase Tipus Carrer
-class TipusCarrer {
-
-    private final String descripcio;
-    public final String abrev;
-    private final int id_tipus_adreça;
-
-    //Constructor de TipusCarrer
-    public TipusCarrer(int id_tipus_adreça, String descripcio, String abrev) {
-        this.id_tipus_adreça = id_tipus_adreça;
-        this.descripcio = descripcio;
-        this.abrev = abrev;
-    }
-
-}
-
-//Clase proveidro
-class Proveidor {
-
-    private int id_proveidor;
-    private String nombre;
-    private String telefon;
-    private String cif;
-    private String activo;
-    private String localidad;
-    public Adreça adreça;
-
-    //Constructor
-    public Proveidor(String nombre, String telefon, String cif, String activo, Adreça adreça) {
-        this.nombre = nombre;
-        this.telefon = telefon;
-        this.cif = cif;
-        this.activo = activo;
-        this.adreça = adreça;
-    }
-
-    public Proveidor(String nombre, String telefon, String cif, String activo) {
-        this.nombre = nombre;
-        this.telefon = telefon;
-        this.cif = cif;
-        this.activo = activo;
-    }
-
-    public Proveidor(String cif){
-        this.cif =  cif;
-    }
-
-    public int getId_proveidor() {
-        return id_proveidor;
-    }
-
-    public void setId_proveidor(int id_proveidor) {
-        this.id_proveidor = id_proveidor;
-    }
-
-    public String getLocalidad() {
-        return localidad;
-    }
-
-    public void setLocalidad(String localidad) {
-        this.localidad = localidad;
-    }
-
-    public String getCif() {
-        return cif;
-    }
-
-    public String getActivo() {
-        return activo;
-    }
-
-    public String getTelefon() {
-        return telefon;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-}
-
-class Programa {
-    static DataBase db;
-
-    public static void main(String[] args) throws Exception {
-        String username;
-        String password;
-        String server;
-        SimpleXML configXml = new SimpleXML(new FileInputStream("src/config.xml"));
-        Document doc = configXml.getDoc();
-        Element raiz = doc.getDocumentElement();
-        username = configXml.getElement(raiz,"usuario").getTextContent();
-        password = configXml.getElement(raiz,"password").getTextContent();
-        server = configXml.getElement(raiz,"server").getTextContent();
-         db = new DataBase(server,username,password);
-
-    }
-}
-
-class Adreça {
-
-    private int id_Adreça;
-    private String carrer = "";
-    private String nPortal = "";
-    private String lletraPortal = "";
-    private String PisoYLetra = "";
-    private String codigoPostal = "";
-    private int tipo_Via;
-    private int id_localidad;
 
 
-    public Adreça(String carrer, int id_localidad, String codigoPostal, String pisoYLetra, String lletraPortal, String nPortal, int Tipo_via) {
-        this.carrer = carrer;
-        this.id_localidad = id_localidad;
-        this.codigoPostal = codigoPostal;
-        this.PisoYLetra = pisoYLetra;
-        this.lletraPortal = lletraPortal;
-        this.nPortal = nPortal;
-        this.tipo_Via = Tipo_via;
-
-}
-
-    public String getCarrer() {
-        return carrer;
-    }
-
-    public int getId_localidad() {
-        return id_localidad;
-    }
-
-    public void setId_localidad(int id_localidad) {
-        this.id_localidad = id_localidad;
-    }
-
-    public int getId_Adreça() {
-        return id_Adreça;
-    }
-
-    public void setId_Adreça(int id_Adreça) {
-        this.id_Adreça = id_Adreça;
-    }
-
-    public String getLletraPortal() {
-        return lletraPortal;
-    }
-
-    public String getPisoYLetra() {
-        return PisoYLetra;
-    }
-
-    public String getCodigoPostal() {
-        return codigoPostal;
-    }
 
 
-    public int getTipo_Via() {
-        return tipo_Via;
-    }
 
-    public String getnPortal() {
-        return nPortal;
-    }
-}
+

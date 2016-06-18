@@ -133,7 +133,7 @@ public class PanelPrincipal {
 
     }
 
-    private static void XMLproveidor(Document doc, Element proveidor, Proveidor p){
+    private static void XMLproveidor(Document doc, Element proveidor, Proveidor p) {
 
         Element nom = doc.createElement("nom");
         proveidor.appendChild(nom);
@@ -156,7 +156,7 @@ public class PanelPrincipal {
         activo.setTextContent(p.getActivo());
     }
 
-    private static void XMLadreca(Document doc, Element adreca, Proveidor p){
+    private static void XMLadreca(Document doc, Element adreca, Proveidor p) {
 
         Element id_tipus_adreca = doc.createElement("id_tipus_adreca");
         adreca.appendChild(id_tipus_adreca);
@@ -190,33 +190,33 @@ public class PanelPrincipal {
     public static void ExportarXML(List<Proveidor> proveedores) throws ParserConfigurationException, FileNotFoundException, TransformerException {
         JFileChooser jfc = new JFileChooser();
         int code = jfc.showSaveDialog(frame);
-        if(code == JFileChooser.APPROVE_OPTION) {
+        if (code == JFileChooser.APPROVE_OPTION) {
 
-        SimpleXML dumpXml = new SimpleXML();
-        Document doc = dumpXml.getDoc();
-        Element arrel = doc.createElement("data");
-        doc.appendChild(arrel);
+            SimpleXML dumpXml = new SimpleXML();
+            Document doc = dumpXml.getDoc();
+            Element arrel = doc.createElement("data");
+            doc.appendChild(arrel);
 
-        for (Proveidor p : proveedores) {
+            for (Proveidor p : proveedores) {
 
-            Element proveidor = doc.createElement("proveidor");
-            arrel.appendChild(proveidor);
+                Element proveidor = doc.createElement("proveidor");
+                arrel.appendChild(proveidor);
 
-            XMLproveidor(doc, proveidor, p);
+                XMLproveidor(doc, proveidor, p);
 
-            Element adreca = doc.createElement("adreça");
-            proveidor.appendChild(adreca);
+                Element adreca = doc.createElement("adreça");
+                proveidor.appendChild(adreca);
 
-            XMLadreca(doc, adreca, p);
-        }
+                XMLadreca(doc, adreca, p);
+            }
             String path = jfc.getSelectedFile().getPath();
-            if(!path.endsWith(".xml") ) {
-                dumpXml.write(new FileOutputStream(jfc.getSelectedFile().getPath()+".xml"));
-            }else{
+            if (!path.endsWith(".xml")) {
+                dumpXml.write(new FileOutputStream(jfc.getSelectedFile().getPath() + ".xml"));
+            } else {
                 dumpXml.write(new FileOutputStream(jfc.getSelectedFile().getPath()));
             }
 
-        JOptionPane.showMessageDialog(null, "Exportacion realizada con exito");
-    }
+            JOptionPane.showMessageDialog(null, "Exportacion realizada con exito");
+        }
     }
 }

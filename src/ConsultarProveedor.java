@@ -63,7 +63,6 @@ public class ConsultarProveedor extends JDialog {
     private String telefon = "";
 
 
-
     public ConsultarProveedor(JFrame parent) throws SQLException {
         super(parent);
         setLocationRelativeTo(parent);
@@ -98,7 +97,7 @@ public class ConsultarProveedor extends JDialog {
                 Proveidor p = new Proveidor(nombre, telefon, cif, activo);
                 p.setLocalidad(localidad);
                 try {
-                   CargarRegistros(p);
+                    CargarRegistros(p);
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
@@ -128,13 +127,13 @@ public class ConsultarProveedor extends JDialog {
                         Adreça a;
                         try {
                             a = new Adreça(calleN, Programa.db.ObtenerIdLocalidad(localidadN), codigo_postalN, plletraN, llportalN, nportalN, Programa.db.ObtenerIdTipoVia(tipus_adreçaN));
-                             a.setId_Adreça(id_adreca);
+                            a.setId_Adreça(id_adreca);
                             a.setId_localidad(Programa.db.ObtenerIdLocalidad(localidadN));
-                             Proveidor p = new Proveidor(nombreN, telefonN, cifN, activoN, a);
-                              p.setId_proveidor(id_proveidor);
+                            Proveidor p = new Proveidor(nombreN, telefonN, cifN, activoN, a);
+                            p.setId_proveidor(id_proveidor);
                             Programa.db.ModificarProveedor(p);
                             JOptionPane.showMessageDialog(null, "Modificacion realizada con exito");
-                            Proveidor p2 = new Proveidor(nombre,telefon,cif,activo);
+                            Proveidor p2 = new Proveidor(nombre, telefon, cif, activo);
                             p2.setLocalidad(localidad);
                             dtm.setRowCount(0);
                             CargarRegistros(p2);
@@ -154,7 +153,7 @@ public class ConsultarProveedor extends JDialog {
                     Proveidor p = new Proveidor(cifN);
                     try {
                         Programa.db.EliminarProveedor(p);
-                        JOptionPane.showMessageDialog(null,"Proveedor dado de baja");
+                        JOptionPane.showMessageDialog(null, "Proveedor dado de baja");
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -165,7 +164,7 @@ public class ConsultarProveedor extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                  PanelPrincipal.ExportarXML(Programa.db.ObtenerXmlConsulta(nombres));
+                    PanelPrincipal.ExportarXML(Programa.db.ObtenerXmlConsulta(nombres));
                 } catch (ParserConfigurationException e1) {
                     e1.printStackTrace();
                 } catch (SQLException e1) {
@@ -236,7 +235,7 @@ public class ConsultarProveedor extends JDialog {
             }
             exportarConsultaButton.setEnabled(true);
 
-        }else {
+        } else {
             JOptionPane.showMessageDialog(null, "No hay ningun registro que coincida");
             exportarConsultaButton.setEnabled(false);
         }
@@ -278,7 +277,7 @@ public class ConsultarProveedor extends JDialog {
         telefonMField.setEnabled(false);
         cifMFild.setText("");
         cifMFild.setEnabled(false);
-        comboBox3.setSelectedItem( "...");
+        comboBox3.setSelectedItem("...");
         comboBox3.setEnabled(false);
         nportalMField.setText("");
         nportalMField.setEnabled(false);
@@ -296,12 +295,12 @@ public class ConsultarProveedor extends JDialog {
         comboBox5.setEnabled(false);
     }
 
-    private void ObtenerValoresNuevosCamposModificar(){
+    private void ObtenerValoresNuevosCamposModificar() {
         tipus_adreçaN = (String) comboBox5.getSelectedItem();
         nombreN = nombreMFild.getText();
         cifN = cifMFild.getText();
         localidadN = (String) comboBox3.getSelectedItem();
-        activoN =  (String) comboBox4.getSelectedItem();
+        activoN = (String) comboBox4.getSelectedItem();
         telefonN = telefonMField.getText();
         calleN = calleMFild.getText();
         nportalN = nportalMField.getText();

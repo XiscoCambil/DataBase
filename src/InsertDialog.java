@@ -51,11 +51,11 @@ public class InsertDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 ObtenerValores();
-                if(nombre.isEmpty() || telefon.isEmpty() || cif.isEmpty() || carrer.isEmpty() || localidad.isEmpty() || tipus_carrer.isEmpty() || codigoPostal.isEmpty()){
-                    JOptionPane.showMessageDialog(null,"Faltan campos obligatorios por rellenar");
-                }else {
+                if (nombre.isEmpty() || telefon.isEmpty() || cif.isEmpty() || carrer.isEmpty() || localidad.isEmpty() || tipus_carrer.isEmpty() || codigoPostal.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Faltan campos obligatorios por rellenar");
+                } else {
                     try {
-                        Adreça adreça = new Adreça(carrer,Programa.db.ObtenerIdLocalidad(localidad), codigoPostal, PisoYLetra, lletraPortal, nPortal,Programa.db.ObtenerIdTipoVia(tipus_carrer));
+                        Adreça adreça = new Adreça(carrer, Programa.db.ObtenerIdLocalidad(localidad), codigoPostal, PisoYLetra, lletraPortal, nPortal, Programa.db.ObtenerIdTipoVia(tipus_carrer));
                         Proveidor proveidor = new Proveidor(nombre, telefon, cif, "s", adreça);
                         Programa.db.InsertarProveidor(adreça, proveidor);
                         JOptionPane.showMessageDialog(null, "Proveedor insertado correctamente");
