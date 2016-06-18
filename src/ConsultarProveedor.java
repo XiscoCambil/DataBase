@@ -150,7 +150,7 @@ public class ConsultarProveedor extends JDialog {
                 if (table1.getSelectedRow() < 0) {
                     JOptionPane.showMessageDialog(null, "No hay registro seleccionado");
                 } else {
-                    Proveidor p = new Proveidor(cifN);
+                    Proveidor p = new Proveidor(nombre,telefon,cif,activo);
                     try {
                         Programa.db.EliminarProveedor(p);
                         JOptionPane.showMessageDialog(null, "Proveedor dado de baja");

@@ -28,9 +28,6 @@ public class Proveidor {
         this.activo = activo;
     }
 
-    public Proveidor(String cif) {
-        this.cif = cif;
-    }
 
     public int getId_proveidor() {
         return id_proveidor;
