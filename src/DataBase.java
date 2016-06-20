@@ -51,6 +51,17 @@ public class DataBase {
         InsertPro(proveidor);
     }
 
+    //Metodo para obtener la nueva id_adreca
+    private int ObtenerIdAdreca() throws SQLException {
+        //Obtenemos los datos para insertar en la tabala ADRECA
+        String ConsultaMaxAdreca = "SELECT MAX(id_adreca)+1 as adreca FROM ADRECA";
+        PreparedStatement prs3 = c.prepareStatement(ConsultaMaxAdreca);
+        ResultSet rs3 = prs3.executeQuery();
+        rs3.next();
+        return rs3.getInt("adreca");
+    }
+
+
     //Metodo para la inserccion de la direccion del proveedor
     private void InsertAdr(Adreça adreça) {
         try {
@@ -86,15 +97,6 @@ public class DataBase {
         }
     }
 
-    //Metodo para obtener la nueva id_adreca
-    private int ObtenerIdAdreca() throws SQLException {
-        //Obtenemos los datos para insertar en la tabala ADRECA
-        String ConsultaMaxAdreca = "SELECT MAX(id_adreca)+1 as adreca FROM ADRECA";
-        PreparedStatement prs3 = c.prepareStatement(ConsultaMaxAdreca);
-        ResultSet rs3 = prs3.executeQuery();
-        rs3.next();
-        return rs3.getInt("adreca");
-    }
 
     //Metodo utilizado para obtener la id de la locadiad a partir de su nombre
     public int ObtenerIdLocalidad(String localidad) throws SQLException {
@@ -188,7 +190,8 @@ public class DataBase {
         ResultSet rs = ps.executeQuery();
         List<Proveidor> proveedores = new ArrayList<>();
         while (rs.next()) {
-            Adreça a = new Adreça(rs.getString("a.descripcio"), Programa.db.ObtenerIdLocalidad(rs.getString("l.descripcio")), rs.getString("a.codi_postal"), rs.getString("a.pis"), rs.getString("a.porta"), rs.getString("a.numero"), Programa.db.ObtenerIdTipoVia(rs.getString("t.abreviatura")));
+            Adreça a = new Adreça(rs.getString("a.descripcio"), Programa.db.ObtenerIdLocalidad(rs.getString("l.descripcio")), rs.getString("a.codi_postal"),
+                    rs.getString("a.pis"), rs.getString("a.porta"), rs.getString("a.numero"), Programa.db.ObtenerIdTipoVia(rs.getString("t.abreviatura")));
             a.setId_Adreça(rs.getInt("a.id_adreca"));
             Proveidor p = new Proveidor(rs.getString("p.nom"), rs.getString("p.telefon"), rs.getString("p.CIF"), rs.getString("p.activo"), a);
             proveedores.add(p);
@@ -241,7 +244,7 @@ public class DataBase {
 
     //Metodo para obtener los valores que con los que se llenaran los campos de modificar del registro seleccionado
     public ResultSet ObtenerValoresRellenarCampos(Proveidor p) throws SQLException {
-        String sql = "SELECT p.id_proveidor,p.nom,p.telefon,p.CIF,p.activo,a.id_adreca,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio,t.abreviatura FROM((PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat)INNER JOIN TIPUS_ADRECA AS t ON t.id_tipus_adreca = a.id_tipus_adreca  WHERE CIF=? ";
+        String sql = "SELECT p.id_proveidor,p.nom,p.telefon,p.CIF,p.activo,a.id_adreca,a.descripcio,a.numero,a.porta,a.pis,a.codi_postal,l.descripcio,t.abreviatura FROM((PROVEIDOR as p INNER JOIN ADRECA as a ON p.id_adreça = a.id_adreca)INNER JOIN LOCALITAT as l ON a.id_localitat = l.id_localitat)INNER JOIN TIPUS_ADRECA AS t ON t.id_tipus_adreca = a.id_tipus_adreca  WHERE CIF=?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setString(1, p.getCif());
         return ps.executeQuery();

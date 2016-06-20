@@ -82,7 +82,6 @@ public class ConsultarProveedor extends JDialog {
         CreateComboLocalitat(comboBox3);
         CreateComboActivo(comboBox4);
         CreateComboTipoCarrer(comboBox5);
-        ResetearCampos();
 
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -150,8 +149,9 @@ public class ConsultarProveedor extends JDialog {
                 if (table1.getSelectedRow() < 0) {
                     JOptionPane.showMessageDialog(null, "No hay registro seleccionado");
                 } else {
-                    Proveidor p = new Proveidor(nombre,telefon,cif,activo);
                     try {
+                        ObtenerValoresNuevosCamposModificar();
+                        Proveidor p = new Proveidor(nombreN,telefonN,cifN,activoN);
                         Programa.db.EliminarProveedor(p);
                         JOptionPane.showMessageDialog(null, "Proveedor dado de baja");
                     } catch (SQLException e) {

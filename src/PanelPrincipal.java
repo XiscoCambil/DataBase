@@ -34,14 +34,13 @@ public class PanelPrincipal {
         insertarProveidorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                InsertDialog id = null;
                 try {
-                    id = new InsertDialog(frame);
+                    InsertDialog id = new InsertDialog(frame);
+                    id.pack();
+                    id.setVisible(true);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                id.pack();
-                id.setVisible(true);
             }
         });
         numeroDeProveedoresButton.addActionListener(new ActionListener() {
@@ -59,14 +58,13 @@ public class PanelPrincipal {
         consultarProveedorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                ConsultarProveedor cp = null;
                 try {
-                    cp = new ConsultarProveedor(frame);
+                    ConsultarProveedor  cp = new ConsultarProveedor(frame);
+                    cp.pack();
+                    cp.setVisible(true);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                cp.pack();
-                cp.setVisible(true);
             }
         });
         exportarBaseDeDatosButton.addActionListener(new ActionListener() {
